@@ -1,13 +1,12 @@
 # Models
 models/
 !models/.gitkeep
+data/
 
 # Env
 .env
 .envrc
-model
 mlartifacts
 mlflow-artifacts
 mlruns
 mlflow.db
-models
