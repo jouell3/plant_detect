@@ -1,0 +1,13 @@
+# Models
+models/
+!models/.gitkeep
+
+# Env
+.env
+.envrc
+model
+mlartifacts
+mlflow-artifacts
+mlruns
+mlflow.db
+models
