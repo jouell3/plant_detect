@@ -37,26 +37,27 @@ st.markdown(
 # Helpers
 # ---------------------------------------------------------------------------
 
-def load_labels(folder: Path) -> dict[str, str]:
-    csv_path = folder
+def load_labels(csv_path: Path) -> dict[str, str]:
     if not csv_path.exists():
         return {}
     with open(csv_path, newline="") as f:
-        return {Path(row["filename"]).name: row["label"] for row in csv.DictReader(f)}
+        return {row["filename"]: row["label"] for row in csv.DictReader(f)}
 
 
-def save_labels(folder: Path, labels: dict[str, str]) -> None:
-    csv_path = folder
+def save_labels(csv_path: Path, labels: dict[str, str]) -> None:
     with open(csv_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["filename", "label", "name"])
         writer.writeheader()
         for filename, label in sorted(labels.items()):
-            parts = st.session_state.folder.parts
-            data_idx = next((i for i, p in enumerate(parts) if p == "data"), None)
-            rel_folder = Path(*parts[data_idx:]) if data_idx is not None else st.session_state.folder
-            name = filename.split("_")[0]
-            name = name.split("/")[-1]
-            writer.writerow({"filename": str(rel_folder / filename), "label": label, "name": name})
+            name = Path(filename).stem.split("_")[0]
+            writer.writerow({"filename": filename, "label": label, "name": name})
+
+
+def rel_key(path: Path) -> str:
+    """Return relative path starting from 'data/', e.g. data/raw/dill/dill_0.jpg"""
+    parts = path.parts
+    data_idx = next((i for i, p in enumerate(parts) if p == "data"), None)
+    return str(Path(*parts[data_idx:])) if data_idx is not None else path.name
 
 
 def scan_images(folder: Path) -> list[Path]:
@@ -92,9 +93,7 @@ with st.sidebar:
         st.metric("Total images", total)
         st.metric("Labeled", labeled)
         st.metric("Good", good)
-        st.metric("Not selected", labeled - good)
-        if total:
-            st.progress(labeled / total, text=f"{labeled}/{total} labeled")
+
     else:
         st.info("Load a folder to start.")
 
@@ -160,7 +159,8 @@ for row in range(GRID_ROWS):
         if img_idx >= len(page_paths):
             break
         path = page_paths[img_idx]
-        label = st.session_state.labels.get(path.name, "not_selected")
+        key = rel_key(path)
+        label = st.session_state.labels.get(key, "not_selected")
 
         with cols[col_idx]:
             st.image(str(path), width=250, caption=path.name)
@@ -176,7 +176,7 @@ for row in range(GRID_ROWS):
                 use_container_width=True,
             ):
                 new_label = "not_selected" if is_good else "good"
-                st.session_state.labels[path.name] = new_label
+                st.session_state.labels[key] = new_label
                 save_labels(st.session_state.label_file, st.session_state.labels)
                 st.rerun()
 
