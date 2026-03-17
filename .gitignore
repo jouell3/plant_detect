@@ -11,3 +11,6 @@ mlflow-artifacts
 mlruns
 mlflow.db
 models
+
+# Big datasets
+data/
