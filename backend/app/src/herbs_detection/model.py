@@ -1,38 +1,76 @@
+import os
 import pickle
 from pathlib import Path
 
 import torch
 from PIL import Image
 from torchvision import models, transforms
-import os
-from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Paths
+# GCS download helper
+# ---------------------------------------------------------------------------
+_GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "")
+_GCS_PREFIX = os.getenv("GCS_MODELS_PREFIX", "models").rstrip("/")
+_MODEL_FILES = ["resnet18_plants.pt", "label_encoder.pkl"]
+
+
+def _download_from_gcs(local_dir: Path) -> None:
+    """Download model files from GCS into local_dir."""
+    from google.cloud import storage  # lazy import — only needed when files are missing
+
+    print(f"[model] Downloading models from gs://{_GCS_BUCKET}/{_GCS_PREFIX}/")
+    client = storage.Client()
+    bucket = client.bucket(_GCS_BUCKET)
+
+    local_dir.mkdir(parents=True, exist_ok=True)
+    for filename in _MODEL_FILES:
+        blob_name = f"{_GCS_PREFIX}/{filename}"
+        dest = local_dir / filename
+        print(f"[model]   {blob_name} → {dest}")
+        bucket.blob(blob_name).download_to_filename(str(dest))
+    print("[model] Download complete.")
+
+
+# ---------------------------------------------------------------------------
+# Model directory resolution
 # ---------------------------------------------------------------------------
 def _resolve_model_dir() -> Path:
-    candidates = []
+    """Return a local directory that contains both model files.
+
+    Resolution order:
+    1. MODEL_PATH env var (if set and already populated)
+    2. backend/app/models/ relative to the source tree
+    3. /tmp/plant_models/  (populated on-the-fly from GCS)
+    """
+    candidates: list[Path] = []
 
     env_path = os.getenv("MODEL_PATH")
     if env_path:
         candidates.append(Path(env_path))
 
     here = Path(__file__).resolve()
-    candidates.append(here.parents[2] / "models")     # source tree: backend/app/models
+    candidates.append(here.parents[2] / "models")      # backend/app/models
     candidates.append(Path.cwd() / "backend/app/models")
     candidates.append(Path.cwd() / "app/models")
 
     for p in candidates:
-        if p.exists():
+        if p.is_dir() and all((p / f).exists() for f in _MODEL_FILES):
             return p
 
-    raise FileNotFoundError(
-        "Could not find model directory. "
-        "Set MODEL_PATH to the folder containing label_encoder.pkl and resnet18_plants.pt."
-    )
+    # ── Fallback: download from GCS ──────────────────────────────────────
+    if not _GCS_BUCKET:
+        raise FileNotFoundError(
+            "Model files not found locally and GCS_BUCKET_NAME is not set. "
+            "Either copy resnet18_plants.pt + label_encoder.pkl into "
+            "backend/app/models/ or set GCS_BUCKET_NAME."
+        )
+
+    cache_dir = Path(os.getenv("MODEL_PATH", "/tmp/plant_models"))
+    _download_from_gcs(cache_dir)
+    return cache_dir
 
 
-_MODEL_DIR = _resolve_model_dir()  # backend/app/models/
+_MODEL_DIR = _resolve_model_dir()
 _WEIGHTS_PATH = _MODEL_DIR / "resnet18_plants.pt"
 _ENCODER_PATH = _MODEL_DIR / "label_encoder.pkl"
 
