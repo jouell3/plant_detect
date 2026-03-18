@@ -24,8 +24,10 @@ split-folders==0.5.1
 
 # API
 fastapi==0.115.0
-uvicorn[standard]==0.30.6
-python-multipart==0.0.9
+fastapi-cli==0.0.24
+fastapi-cloud-cli==0.15.0
+
+uvicorn==0.30.6
 
 # Interface
 streamlit
@@ -41,3 +43,8 @@ httpx==0.27.2
 # Notebook
 jupyter==1.0.0
 ipykernel==6.29.3
+
+torch==2.10.0
+torchvision==0.25.0
+
+python-multipart==0.0.9
