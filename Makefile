@@ -1,9 +1,25 @@
 
-.PHONY: test
+.PHONY: test train_tf train_pt api frontend backend_status
 
 test:
 	curl -X POST http://localhost:8000/predict_herb \
-	  -F "file=@data/raw/all_images/dill_0.jpg"
+	  -F "file=@data/all_images/dill_0.jpg" \
+	  -F "backend=tensorflow"
+
+train_tf:
+	PYTHONPATH=backend/app/src python -m herbs_detection.tensorflow_pipeline
+
+train_pt:
+	PYTHONPATH=backend/app/src python -m herbs_detection.pytorch_pipeline
+
+api:
+	PYTHONPATH=backend/app/src:. uvicorn backend.app.api.main:api --reload --host 0.0.0.0 --port 8000
+
+frontend:
+	streamlit run frontend/main.py --server.headless true
+
+backend_status:
+	PYTHONPATH=backend/app/src:. python -c "from herbs_detection.model import get_all_backend_statuses; print(get_all_backend_statuses())"
 
 build: ## Build Docker image locally
 	docker build -f docker/backend.Dockerfile -t plant-detect-backend .

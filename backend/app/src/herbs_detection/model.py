@@ -1,119 +1,69 @@
-import pickle
-from pathlib import Path
+from __future__ import annotations
 
-import torch
-from PIL import Image
-from torchvision import models, transforms
-import os
-from pathlib import Path
+from functools import lru_cache
+from typing import Any
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
-def _resolve_model_dir() -> Path:
-    candidates = []
+from herbs_detection.params import SUPPORTED_BACKENDS, normalize_backend_name
 
-    env_path = os.getenv("MODEL_PATH")
-    if env_path:
-        candidates.append(Path(env_path))
 
-    here = Path(__file__).resolve()
-    candidates.append(here.parents[2] / "models")     # source tree: backend/app/models
-    candidates.append(Path.cwd() / "backend/app/models")
-    candidates.append(Path.cwd() / "app/models")
+def _load_predictor(backend: str):
+    normalized_backend = normalize_backend_name(backend)
 
-    for p in candidates:
-        if p.exists():
-            return p
+    if normalized_backend == "pytorch":
+        from herbs_detection.pytorch_backend import PyTorchHerbClassifier
 
-    raise FileNotFoundError(
-        "Could not find model directory. "
-        "Set MODEL_PATH to the folder containing label_encoder.pkl and resnet18_plants.pt."
+        return PyTorchHerbClassifier()
+
+    if normalized_backend == "tensorflow":
+        from herbs_detection.tensorflow_backend import TensorFlowHerbClassifier
+
+        return TensorFlowHerbClassifier()
+
+    raise ValueError(f"Unsupported backend '{backend}'.")
+
+
+@lru_cache(maxsize=len(SUPPORTED_BACKENDS))
+def get_predictor(backend: str):
+    return _load_predictor(backend)
+
+
+def get_backend_status(backend: str) -> dict[str, Any]:
+    normalized_backend = normalize_backend_name(backend)
+
+    try:
+        predictor = get_predictor(normalized_backend)
+        return {
+            "backend": normalized_backend,
+            "available": True,
+            "model_path": str(predictor.model_path),
+            "num_classes": predictor.num_classes,
+        }
+    except Exception as exc:  # pragma: no cover - status endpoint must stay resilient
+        return {
+            "backend": normalized_backend,
+            "available": False,
+            "error": str(exc),
+        }
+
+
+def get_all_backend_statuses() -> list[dict[str, Any]]:
+    return [get_backend_status(backend) for backend in SUPPORTED_BACKENDS]
+
+
+def predict(img_path: str, backend: str = "pytorch") -> tuple[str, float]:
+    return get_predictor(normalize_backend_name(backend)).predict(img_path)
+
+
+def predict_top3(img_path: str, backend: str = "pytorch") -> list[tuple[str, float]]:
+    return get_predictor(normalize_backend_name(backend)).predict_topk(img_path, k=3)
+
+
+def predict_set(
+    img_paths: list[str],
+    backend: str = "pytorch",
+    batch_size: int = 32,
+) -> list[tuple[str, float]]:
+    return get_predictor(normalize_backend_name(backend)).predict_batch(
+        img_paths,
+        batch_size=batch_size,
     )
-
-
-_MODEL_DIR = _resolve_model_dir()  # backend/app/models/
-_WEIGHTS_PATH = _MODEL_DIR / "resnet18_plants.pt"
-_ENCODER_PATH = _MODEL_DIR / "label_encoder.pkl"
-
-IMG_SIZE = 224
-
-# ---------------------------------------------------------------------------
-# Load once at import time (singleton — reused across all API requests)
-# ---------------------------------------------------------------------------
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-with open(_ENCODER_PATH, "rb") as f:
-    _le = pickle.load(f)
-
-NUM_CLASSES = len(_le.classes_)
-
-_model = models.resnet18(weights=None)
-_model.fc = torch.nn.Linear(_model.fc.in_features, NUM_CLASSES)
-_model.load_state_dict(torch.load(_WEIGHTS_PATH, map_location=DEVICE))
-_model.to(DEVICE)
-_model.eval()
-
-# ---------------------------------------------------------------------------
-# Preprocessing (same pipeline as training)
-# ---------------------------------------------------------------------------
-_preprocess = transforms.Compose([
-    transforms.Resize((IMG_SIZE, IMG_SIZE)),
-    transforms.ToTensor(),                                       # HWC uint8 → CHW float32 in [0,1]
-    transforms.Normalize([0.485, 0.456, 0.406],
-                         [0.229, 0.224, 0.225]),                 # ImageNet stats
-])
-
-def _load_tensor(img_path: str) -> torch.Tensor:
-    img = Image.open(img_path).convert("RGB")
-    return _preprocess(img).unsqueeze(0).to(DEVICE)             # (1, 3, 224, 224)
-
-def _load_batch(img_paths: list[str]) -> torch.Tensor:
-    tensors = [_preprocess(Image.open(p).convert("RGB")) for p in img_paths]
-    return torch.stack(tensors).to(DEVICE)                      # (N, 3, 224, 224)
-
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
-
-def predict(img_path: str) -> tuple[str, float]:
-    """Return the top predicted species and its confidence score."""
-    with torch.no_grad():
-        proba = torch.softmax(_model(_load_tensor(img_path)), dim=1).squeeze()
-
-    confidence, class_idx = proba.max(dim=0)
-    species = _le.inverse_transform([class_idx.item()])[0]
-    return species, round(confidence.item(), 4)
-
-
-def predict_top3(img_path: str) -> list[tuple[str, float]]:
-    """Return the top-3 predicted species with confidence scores."""
-    with torch.no_grad():
-        proba = torch.softmax(_model(_load_tensor(img_path)), dim=1).squeeze()
-
-    top3 = proba.topk(3)
-    return [
-        (_le.classes_[i.item()], round(p.item(), 4))
-        for i, p in zip(top3.indices, top3.values)
-    ]
-
-
-def predict_set(img_paths: list[str], batch_size: int = 32) -> list[tuple[str, float]]:
-    """Run batch inference on a list of image paths.
-
-    Processes images in chunks of batch_size so large sets don't exhaust GPU memory.
-    Returns one (species, confidence) tuple per input image, in the same order.
-    """
-    results = []
-    for start in range(0, len(img_paths), batch_size):
-        chunk = img_paths[start : start + batch_size]
-        batch = _load_batch(chunk)                               # (N, 3, 224, 224)
-        with torch.no_grad():
-            proba = torch.softmax(_model(batch), dim=1)          # (N, num_classes)
-        confidences, class_idxs = proba.max(dim=1)
-        species = _le.inverse_transform(class_idxs.cpu().tolist())
-        results.extend(
-            (s, round(c, 4))
-            for s, c in zip(species, confidences.cpu().tolist())
-        )
-    return results

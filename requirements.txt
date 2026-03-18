@@ -1,5 +1,5 @@
 # Deep Learning - GPU
-tensorflow
+tensorflow==2.15.0
 
 # Data
 pandas

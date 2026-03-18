@@ -4,6 +4,7 @@ fastapi-cloud-cli==0.15.0
 
 uvicorn==0.30.6
 
+tensorflow==2.15.0
 torch==2.10.0
 torchvision==0.25.0
 
