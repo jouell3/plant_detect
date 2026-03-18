@@ -1,0 +1,14 @@
+fastapi==0.115.0
+fastapi-cli==0.0.24
+fastapi-cloud-cli==0.15.0
+
+uvicorn==0.30.6
+
+torch==2.10.0
+torchvision==0.25.0
+
+pillow==10.4.0
+
+scikit-learn==1.8.0
+
+python-multipart==0.0.9
