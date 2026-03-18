@@ -1,13 +1,13 @@
 # Models
 models/
 !models/.gitkeep
+data/
+notebooks/dataset_aromatic_duckduckgo/
 
 # Env
 .env
 .envrc
-model
 mlartifacts
 mlflow-artifacts
 mlruns
 mlflow.db
-models
