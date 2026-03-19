@@ -11,3 +11,15 @@ mlartifacts
 mlflow-artifacts
 mlruns
 mlflow.db
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+*.venv
+venv/
+ENV/
+env/
+.venv/
