@@ -48,3 +48,7 @@ torch==2.10.0
 torchvision==0.25.0
 
 python-multipart==0.0.9
+
+#batch processing
+asyncio==3.0.0
+aiohttp==3.8.4
