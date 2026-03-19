@@ -9,9 +9,10 @@ from torchvision import models, transforms
 # ---------------------------------------------------------------------------
 # GCS download helper
 # ---------------------------------------------------------------------------
-_GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "")
-_GCS_PREFIX = os.getenv("GCS_MODELS_PREFIX", "models").rstrip("/")
-_MODEL_FILES = ["resnet18_plants.pt", "label_encoder.pkl"]
+_GCS_BUCKET   = os.getenv("GCS_BUCKET_NAME", "")
+_GCS_PREFIX   = os.getenv("GCS_MODELS_PREFIX", "models").rstrip("/")
+_GCS_PROJECT  = os.getenv("GCS_PROJECT", "bootcamparomatic")
+_MODEL_FILES  = ["resnet18_plants.pt", "label_encoder.pkl"]
 
 
 def _download_from_gcs(local_dir: Path) -> None:
@@ -19,7 +20,7 @@ def _download_from_gcs(local_dir: Path) -> None:
     from google.cloud import storage  # lazy import — only needed when files are missing
 
     print(f"[model] Downloading models from gs://{_GCS_BUCKET}/{_GCS_PREFIX}/")
-    client = storage.Client()
+    client = storage.Client(project=_GCS_PROJECT)
     bucket = client.bucket(_GCS_BUCKET)
 
     local_dir.mkdir(parents=True, exist_ok=True)
@@ -38,36 +39,43 @@ def _resolve_model_dir() -> Path:
     """Return a local directory that contains both model files.
 
     Resolution order:
-    1. MODEL_PATH env var (if set and already populated)
-    2. backend/app/models/ relative to the source tree
-    3. /tmp/plant_models/  (populated on-the-fly from GCS)
+    1. Try to download fresh files from GCS into MODEL_PATH (or /tmp/plant_models).
+    2. If GCS download fails (no bucket configured, network error, etc.),
+       fall back to the first local directory that already has both files:
+         - MODEL_PATH env var
+         - backend/app/models/ relative to the source tree
     """
-    candidates: list[Path] = []
+    # ── 1. Try GCS first ─────────────────────────────────────────────────
+    if _GCS_BUCKET:
+        gcs_dest = Path(os.getenv("MODEL_PATH", "models/gcp_download"))
+        try:
+            _download_from_gcs(gcs_dest)
+            return gcs_dest
+        except Exception as exc:
+            print(f"[model] GCS download failed ({exc}), falling back to local files.")
+
+    # ── 2. Fallback: use pre-existing local files ─────────────────────────
+    fallback_candidates: list[Path] = []
 
     env_path = os.getenv("MODEL_PATH")
     if env_path:
-        candidates.append(Path(env_path))
+        fallback_candidates.append(Path(env_path))
 
     here = Path(__file__).resolve()
-    candidates.append(here.parents[2] / "models")      # backend/app/models
-    candidates.append(Path.cwd() / "backend/app/models")
-    candidates.append(Path.cwd() / "app/models")
+    fallback_candidates.append(here.parents[2] / "models")      # backend/app/models
+    fallback_candidates.append(Path.cwd() / "backend/app/models")
+    fallback_candidates.append(Path.cwd() / "app/models")
 
-    for p in candidates:
+    for p in fallback_candidates:
         if p.is_dir() and all((p / f).exists() for f in _MODEL_FILES):
+            print(f"[model] Using local model files from {p}")
             return p
 
-    # ── Fallback: download from GCS ──────────────────────────────────────
-    if not _GCS_BUCKET:
-        raise FileNotFoundError(
-            "Model files not found locally and GCS_BUCKET_NAME is not set. "
-            "Either copy resnet18_plants.pt + label_encoder.pkl into "
-            "backend/app/models/ or set GCS_BUCKET_NAME."
-        )
-
-    cache_dir = Path(os.getenv("MODEL_PATH", "/tmp/plant_models"))
-    _download_from_gcs(cache_dir)
-    return cache_dir
+    raise FileNotFoundError(
+        "GCS download failed and no local model files were found. "
+        "Set GCS_BUCKET_NAME or place resnet18_plants.pt + label_encoder.pkl "
+        "in backend/app/models/."
+    )
 
 
 _MODEL_DIR = _resolve_model_dir()

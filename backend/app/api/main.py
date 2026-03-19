@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile
-from herbs_detection.model import predict_top3, predict_set
+from ..src.herbs_detection.model import predict_top3, predict_set
 import uvicorn
 
 api = FastAPI()

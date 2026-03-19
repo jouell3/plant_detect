@@ -1,8 +1,11 @@
 
 .PHONY: test
 
+serve: ## Run the API locally with the correct PYTHONPATH
+	PYTHONPATH=backend/app/src uvicorn backend.app.api.main:api --reload --host 0.0.0.0 --port 8080
+
 test:
-	curl -X POST http://localhost:8000/predict_herb \
+	curl -X POST http://localhost:8080/predict_herb \
 	  -F "file=@data/raw/all_images/dill_0.jpg"
 
 build: ## Build Docker image locally
