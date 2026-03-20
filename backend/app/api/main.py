@@ -1,12 +1,23 @@
 import os
 import tempfile
+import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile
-from ..src.herbs_detection.model import predict_top3, predict_set
+from ..src.herbs_detection.model import predict_top3, predict_set, load_model
 import uvicorn
 
-api = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load model in a background thread so the server binds its port immediately
+    # and Cloud Run's health check can succeed before the download finishes.
+    threading.Thread(target=load_model, daemon=True).start()
+    yield
+
+
+api = FastAPI(lifespan=lifespan)
 
 ## to start the server: uvicorn app.api.main:api --reload
 
