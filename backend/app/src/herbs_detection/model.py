@@ -4,6 +4,7 @@ import threading
 from pathlib import Path
 
 import torch
+from loguru import logger
 from PIL import Image
 from torchvision import models, transforms
 
@@ -20,7 +21,7 @@ def _download_from_gcs(local_dir: Path) -> None:
     """Download model files from GCS into local_dir."""
     from google.cloud import storage  # lazy import — only needed when files are missing
 
-    print(f"[model] Downloading models from gs://{_GCS_BUCKET}/{_GCS_PREFIX}/")
+    logger.info("Downloading models from gs://{}/{}/", _GCS_BUCKET, _GCS_PREFIX)
     client = storage.Client(project=_GCS_PROJECT)
     bucket = client.bucket(_GCS_BUCKET)
 
@@ -28,9 +29,9 @@ def _download_from_gcs(local_dir: Path) -> None:
     for filename in _MODEL_FILES:
         blob_name = f"{_GCS_PREFIX}/{filename}"
         dest = local_dir / filename
-        print(f"[model]   {blob_name} → {dest}")
+        logger.debug("  {} → {}", blob_name, dest)
         bucket.blob(blob_name).download_to_filename(str(dest))
-    print("[model] Download complete.")
+    logger.info("GCS download complete.")
 
 
 # ---------------------------------------------------------------------------
@@ -53,7 +54,7 @@ def _resolve_model_dir() -> Path:
             _download_from_gcs(gcs_dest)
             return gcs_dest
         except Exception as exc:
-            print(f"[model] GCS download failed ({exc}), falling back to local files.")
+            logger.warning("GCS download failed ({}), falling back to local files.", exc)
 
     # ── 2. Fallback: use pre-existing local files ─────────────────────────
     fallback_candidates: list[Path] = []
@@ -69,7 +70,7 @@ def _resolve_model_dir() -> Path:
 
     for p in fallback_candidates:
         if p.is_dir() and all((p / f).exists() for f in _MODEL_FILES):
-            print(f"[model] Using local model files from {p}")
+            logger.info("Using local model files from {}", p)
             return p
 
     raise FileNotFoundError(
@@ -119,7 +120,7 @@ def load_model() -> None:
     _model.to(DEVICE)
     _model.eval()
     _ready.set()
-    print("[model] Model ready.")
+    logger.info("Model ready. device={} classes={}", DEVICE, num_classes)
 
 
 def _ensure_loaded() -> None:
