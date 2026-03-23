@@ -55,4 +55,4 @@ aiohttp==3.8.4
 
 pandas==3.0.1
 
-herbs_detection==0.1.0
+-e .
