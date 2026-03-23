@@ -1,6 +1,9 @@
 # Models
 models/
 !models/.gitkeep
+models_pt/
+exports/
+artifacts/
 
 # Env
 .env
@@ -11,6 +14,11 @@ mlflow-artifacts
 mlruns
 mlflow.db
 models
+__pycache__/
 
 # Big datasets
 data/
+
+# Logs
+logs/
+
