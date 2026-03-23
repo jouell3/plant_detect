@@ -17,6 +17,7 @@ mlartifacts
 mlflow-artifacts
 mlruns
 mlflow.db
+!frontend/fiches.json
 
 # python
 */__pycache__/

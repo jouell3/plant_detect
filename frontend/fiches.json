@@ -1,0 +1,232 @@
+{
+  "angelica": {
+    "nom_fr": "Angélique",
+    "nom_en": "Angelica",
+    "description": "Plante aromatique aux tiges parfumées, utilisée en confiserie et en herboristerie.",
+    "usages": ["liqueurs", "confiseries", "digestion"],
+    "arome": "doux, légèrement musqué",
+    "culture": "Sol riche et humide, mi-ombre, climat frais.",
+    "toxicite": "Les graines et racines peuvent être photosensibilisantes en grande quantité.",
+    "compatibilites": ["rhubarbe", "fruits confits", "liqueurs"]
+  },
+  "basil": {
+    "nom_fr": "Basilic",
+    "nom_en": "Basil",
+    "description": "Herbe incontournable de la cuisine méditerranéenne.",
+    "usages": ["pesto", "salades", "plats italiens"],
+    "arome": "frais, poivré",
+    "culture": "Plein soleil, sol drainé, arrosages réguliers.",
+    "toxicite": "Aucune toxicité notable.",
+    "compatibilites": ["tomate", "ail", "mozzarella"]
+  },
+  "borage": {
+    "nom_fr": "Bourrache",
+    "nom_en": "Borage",
+    "description": "Plante aux fleurs bleues comestibles, au goût rappelant le concombre.",
+    "usages": ["salades", "infusions"],
+    "arome": "léger, frais",
+    "culture": "Sol léger, exposition ensoleillée.",
+    "toxicite": "Les feuilles contiennent des alcaloïdes en grande quantité, à consommer modérément.",
+    "compatibilites": ["salades vertes", "poissons", "boissons fraîches"]
+  },
+  "chamomile": {
+    "nom_fr": "Camomille",
+    "nom_en": "Chamomile",
+    "description": "Plante médicinale apaisante, souvent utilisée en infusion.",
+    "usages": ["infusions", "calmant", "digestion"],
+    "arome": "doux, floral",
+    "culture": "Soleil, sol léger et bien drainé.",
+    "toxicite": "Peut provoquer des allergies chez les personnes sensibles aux astéracées.",
+    "compatibilites": ["miel", "citron", "pâtisseries"]
+  },
+  "chives": {
+    "nom_fr": "Ciboulette",
+    "nom_en": "Chives",
+    "description": "Herbe fraîche au goût d’oignon doux.",
+    "usages": ["omelettes", "salades", "sauces"],
+    "arome": "oignon léger",
+    "culture": "Soleil ou mi-ombre, sol frais.",
+    "toxicite": "Sans toxicité notable.",
+    "compatibilites": ["œufs", "pommes de terre", "fromage frais"]
+  },
+  "coriander": {
+    "nom_fr": "Coriandre",
+    "nom_en": "Coriander",
+    "description": "Herbe très aromatique utilisée dans de nombreuses cuisines du monde.",
+    "usages": ["cuisine asiatique", "mexicaine", "salades"],
+    "arome": "agrumes, herbacé",
+    "culture": "Soleil, sol léger, arrosages modérés.",
+    "toxicite": "Sans toxicité notable.",
+    "compatibilites": ["citron vert", "poulet", "avocat"]
+  },
+  "dill": {
+    "nom_fr": "Aneth",
+    "nom_en": "Dill",
+    "description": "Herbe fine très utilisée avec le poisson.",
+    "usages": ["poissons", "cornichons", "sauces"],
+    "arome": "anisé, frais",
+    "culture": "Soleil, sol léger et drainé.",
+    "toxicite": "Sans toxicité notable.",
+    "compatibilites": ["saumon", "pommes de terre", "yaourt"]
+  },
+  "fennel": {
+    "nom_fr": "Fenouil",
+    "nom_en": "Fennel",
+    "description": "Plante au goût anisé, utilisée en cuisine et en infusion.",
+    "usages": ["poissons", "salades", "infusions"],
+    "arome": "anisé",
+    "culture": "Soleil, sol profond et drainé.",
+    "toxicite": "Sans toxicité notable.",
+    "compatibilites": ["agrumes", "poisson blanc", "poulet"]
+  },
+  "hyssop": {
+    "nom_fr": "Hysope",
+    "nom_en": "Hyssop",
+    "description": "Plante méditerranéenne utilisée en herboristerie et en liqueurs.",
+    "usages": ["liqueurs", "infusions"],
+    "arome": "camphré, floral",
+    "culture": "Soleil, sol sec et calcaire.",
+    "toxicite": "Huile essentielle neurotoxique à forte dose.",
+    "compatibilites": ["miel", "liqueurs", "plats rustiques"]
+  },
+  "lavender": {
+    "nom_fr": "Lavande",
+    "nom_en": "Lavender",
+    "description": "Plante très parfumée, utilisée en cuisine et en aromathérapie.",
+    "usages": ["desserts", "infusions", "parfums"],
+    "arome": "floral, sucré",
+    "culture": "Soleil, sol sec et drainé.",
+    "toxicite": "Huile essentielle irritante en excès.",
+    "compatibilites": ["miel", "chocolat blanc", "abricot"]
+  },
+  "lemongrass": {
+    "nom_fr": "Citronnelle",
+    "nom_en": "Lemongrass",
+    "description": "Herbe tropicale au parfum citronné, très utilisée en cuisine asiatique.",
+    "usages": ["cuisine thaï", "infusions"],
+    "arome": "citronné, frais",
+    "culture": "Chaleur, soleil, sol riche.",
+    "toxicite": "Huile essentielle irritante.",
+    "compatibilites": ["gingembre", "noix de coco", "poulet"]
+  },
+  "lemonverbena": {
+    "nom_fr": "Verveine citronnée",
+    "nom_en": "Lemon verbena",
+    "description": "Plante très parfumée, idéale en infusion.",
+    "usages": ["infusions", "desserts"],
+    "arome": "citron intense",
+    "culture": "Soleil, sol léger, sensible au gel.",
+    "toxicite": "Peut irriter la peau fraîche.",
+    "compatibilites": ["pêche", "citron", "pâtisseries"]
+  },
+  "lovage": {
+    "nom_fr": "Livèche",
+    "nom_en": "Lovage",
+    "description": "Herbe au goût puissant rappelant le céleri.",
+    "usages": ["bouillons", "plats mijotés"],
+    "arome": "céleri, herbacé",
+    "culture": "Sol riche, mi-ombre.",
+    "toxicite": "Sans toxicité notable.",
+    "compatibilites": ["légumes racines", "poulet", "bouillons"]
+  },
+  "mint": {
+    "nom_fr": "Menthe",
+    "nom_en": "Mint",
+    "description": "Herbe fraîche très polyvalente.",
+    "usages": ["thé", "desserts", "salades"],
+    "arome": "mentholé, frais",
+    "culture": "Sol humide, mi-ombre, très envahissante.",
+    "toxicite": "Sans toxicité notable.",
+    "compatibilites": ["chocolat", "agneau", "citron"]
+  },
+  "mugwort": {
+    "nom_fr": "Armoise",
+    "nom_en": "Mugwort",
+    "description": "Plante traditionnelle utilisée en herboristerie.",
+    "usages": ["infusions", "digestif"],
+    "arome": "amer, herbacé",
+    "culture": "Soleil, sol pauvre.",
+    "toxicite": "Peut être neurotoxique en excès.",
+    "compatibilites": ["viandes grasses", "liqueurs"]
+  },
+  "oregano": {
+    "nom_fr": "Origan",
+    "nom_en": "Oregano",
+    "description": "Herbe méditerranéenne très utilisée dans la cuisine italienne.",
+    "usages": ["pizzas", "sauces tomates"],
+    "arome": "chaud, légèrement amer",
+    "culture": "Soleil, sol sec.",
+    "toxicite": "Sans toxicité notable.",
+    "compatibilites": ["tomate", "ail", "fromage"]
+  },
+  "parsley": {
+    "nom_fr": "Persil",
+    "nom_en": "Parsley",
+    "description": "Herbe fraîche incontournable en cuisine.",
+    "usages": ["salades", "sauces", "garnitures"],
+    "arome": "frais, herbacé",
+    "culture": "Mi-ombre, sol frais.",
+    "toxicite": "Les graines sont toxiques en grande quantité.",
+    "compatibilites": ["ail", "citron", "poisson"]
+  },
+  "rosemary": {
+    "nom_fr": "Romarin",
+    "nom_en": "Rosemary",
+    "description": "Herbe boisée très parfumée.",
+    "usages": ["viandes", "grillades", "pains"],
+    "arome": "résineux, camphré",
+    "culture": "Soleil, sol sec.",
+    "toxicite": "Huile essentielle irritante.",
+    "compatibilites": ["agneau", "pommes de terre", "huile d’olive"]
+  },
+  "sage": {
+    "nom_fr": "Sauge",
+    "nom_en": "Sage",
+    "description": "Herbe aromatique puissante, utilisée en cuisine et en herboristerie.",
+    "usages": ["viandes", "farces", "infusions"],
+    "arome": "boisé, légèrement amer",
+    "culture": "Soleil, sol sec.",
+    "toxicite": "Huile essentielle neurotoxique à forte dose.",
+    "compatibilites": ["porc", "beurre", "courge"]
+  },
+  "savory": {
+    "nom_fr": "Sarriette",
+    "nom_en": "Savory",
+    "description": "Herbe poivrée très utilisée dans les plats mijotés.",
+    "usages": ["légumineuses", "plats mijotés"],
+    "arome": "poivré, herbacé",
+    "culture": "Soleil, sol sec.",
+    "toxicite": "Sans toxicité notable.",
+    "compatibilites": ["haricots", "lentilles", "viandes blanches"]
+  },
+  "tarragon": {
+    "nom_fr": "Estragon",
+    "nom_en": "Tarragon",
+    "description": "Herbe fine au goût anisé, très utilisée en cuisine française.",
+    "usages": ["sauces", "volailles"],
+    "arome": "anisé, doux",
+    "culture": "Soleil, sol léger.",
+    "toxicite": "Sans toxicité notable.",
+    "compatibilites": ["poulet", "moutarde", "crème"]
+  },
+  "thyme": {
+    "nom_fr": "Thym",
+    "nom_en": "Thyme",
+    "description": "Herbe méditerranéenne incontournable.",
+    "usages": ["viandes", "bouillons", "infusions"],
+    "arome": "boisé, résineux",
+    "culture": "Soleil, sol sec.",
+    "toxicite": "Huile essentielle irritante.",
+    "compatibilites": ["ail", "citron", "agneau"]
+  },
+  "wintergreen": {
+    "nom_fr": "Gaulthérie",
+    "nom_en": "Wintergreen",
+    "description": "Plante très aromatique utilisée en huiles essentielles.",
+    "usages": ["aromathérapie"],
+    "arome": "mentholé, médicinal",
+    "culture": "Sol acide, ombre légère.",
+    "toxicite": "Huile essentielle très puissante, toxique en ingestion.",
+    "compatibilites": ["baumes", "préparations médicinales"]
+  }
+}
