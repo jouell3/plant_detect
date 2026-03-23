@@ -1,96 +1,161 @@
+import os
 import pickle
+import threading
 from pathlib import Path
 
 import torch
+from loguru import logger
 from PIL import Image
 from torchvision import models, transforms
-import os
-from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Paths
+# GCS download helper
+# ---------------------------------------------------------------------------
+_GCS_BUCKET   = os.getenv("GCS_BUCKET_NAME", "")
+_GCS_PREFIX   = os.getenv("GCS_MODELS_PREFIX", "models").rstrip("/")
+_GCS_PROJECT  = os.getenv("GCS_PROJECT", "bootcamparomatic")
+_MODEL_FILES  = ["resnet18_plants.pt", "label_encoder.pkl"]
+
+
+def _download_from_gcs(local_dir: Path) -> None:
+    """Download model files from GCS into local_dir."""
+    from google.cloud import storage  # lazy import — only needed when files are missing
+
+    logger.info("Downloading models from gs://{}/{}/", _GCS_BUCKET, _GCS_PREFIX)
+    client = storage.Client(project=_GCS_PROJECT)
+    bucket = client.bucket(_GCS_BUCKET)
+
+    local_dir.mkdir(parents=True, exist_ok=True)
+    for filename in _MODEL_FILES:
+        blob_name = f"{_GCS_PREFIX}/{filename}"
+        dest = local_dir / filename
+        logger.debug("  {} → {}", blob_name, dest)
+        bucket.blob(blob_name).download_to_filename(str(dest))
+    logger.info("GCS download complete.")
+
+
+# ---------------------------------------------------------------------------
+# Model directory resolution
 # ---------------------------------------------------------------------------
 def _resolve_model_dir() -> Path:
-    candidates = []
+    """Return a local directory that contains both model files.
+
+    Resolution order:
+    1. Try to download fresh files from GCS into MODEL_PATH (or /tmp/plant_models).
+    2. If GCS download fails (no bucket configured, network error, etc.),
+       fall back to the first local directory that already has both files:
+         - MODEL_PATH env var
+         - backend/app/models/ relative to the source tree
+    """
+    # ── 1. Try GCS first ─────────────────────────────────────────────────
+    if _GCS_BUCKET:
+        gcs_dest = Path(os.getenv("MODEL_PATH", "models/gcp_download"))
+        try:
+            _download_from_gcs(gcs_dest)
+            return gcs_dest
+        except Exception as exc:
+            logger.warning("GCS download failed ({}), falling back to local files.", exc)
+
+    # ── 2. Fallback: use pre-existing local files ─────────────────────────
+    fallback_candidates: list[Path] = []
 
     env_path = os.getenv("MODEL_PATH")
     if env_path:
-        candidates.append(Path(env_path))
+        fallback_candidates.append(Path(env_path))
 
     here = Path(__file__).resolve()
-    candidates.append(here.parents[2] / "models")     # source tree: backend/app/models
-    candidates.append(Path.cwd() / "backend/app/models")
-    candidates.append(Path.cwd() / "app/models")
+    fallback_candidates.append(here.parents[2] / "models")      # backend/app/models
+    fallback_candidates.append(Path.cwd() / "backend/app/models")
+    fallback_candidates.append(Path.cwd() / "app/models")
 
-    for p in candidates:
-        if p.exists():
+    for p in fallback_candidates:
+        if p.is_dir() and all((p / f).exists() for f in _MODEL_FILES):
+            logger.info("Using local model files from {}", p)
             return p
 
     raise FileNotFoundError(
-        "Could not find model directory. "
-        "Set MODEL_PATH to the folder containing label_encoder.pkl and resnet18_plants.pt."
+        "GCS download failed and no local model files were found. "
+        "Set GCS_BUCKET_NAME or place resnet18_plants.pt + label_encoder.pkl "
+        "in backend/app/models/."
     )
 
 
-_MODEL_DIR = _resolve_model_dir()  # backend/app/models/
-_WEIGHTS_PATH = _MODEL_DIR / "resnet18_plants.pt"
-_ENCODER_PATH = _MODEL_DIR / "label_encoder.pkl"
-
 IMG_SIZE = 224
+DEVICE   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# ---------------------------------------------------------------------------
-# Load once at import time (singleton — reused across all API requests)
-# ---------------------------------------------------------------------------
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-with open(_ENCODER_PATH, "rb") as f:
-    _le = pickle.load(f)
-
-NUM_CLASSES = len(_le.classes_)
-
-_model = models.resnet18(weights=None)
-_model.fc = torch.nn.Linear(_model.fc.in_features, NUM_CLASSES)
-_model.load_state_dict(torch.load(_WEIGHTS_PATH, map_location=DEVICE))
-_model.to(DEVICE)
-_model.eval()
-
-# ---------------------------------------------------------------------------
-# Preprocessing (same pipeline as training)
-# ---------------------------------------------------------------------------
 _preprocess = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
-    transforms.ToTensor(),                                       # HWC uint8 → CHW float32 in [0,1]
+    transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406],
-                         [0.229, 0.224, 0.225]),                 # ImageNet stats
+                         [0.229, 0.224, 0.225]),
 ])
 
+# ---------------------------------------------------------------------------
+# Lazy singleton — loaded once on first use (or via load_model())
+# ---------------------------------------------------------------------------
+_le    = None
+_model = None
+_ready = threading.Event()  # set once model is fully loaded
+
+
+def load_model() -> None:
+    """Resolve model dir, download from GCS if needed, and load weights.
+
+    Called explicitly from the FastAPI startup event so the server can bind
+    its port before the (potentially slow) GCS download begins.
+    """
+    global _le, _model
+
+    model_dir     = _resolve_model_dir()
+    weights_path  = model_dir / "resnet18_plants.pt"
+    encoder_path  = model_dir / "label_encoder.pkl"
+
+    with open(encoder_path, "rb") as f:
+        _le = pickle.load(f)
+
+    num_classes = len(_le.classes_)
+    _model = models.resnet18(weights=None)
+    _model.fc = torch.nn.Linear(_model.fc.in_features, num_classes)
+    _model.load_state_dict(torch.load(weights_path, map_location=DEVICE))
+    _model.to(DEVICE)
+    _model.eval()
+    _ready.set()
+    logger.info("Model ready. device={} classes={}", DEVICE, num_classes)
+
+
+def _ensure_loaded() -> None:
+    _ready.wait()  # blocks until load_model() completes (no-op if already ready)
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 def _load_tensor(img_path: str) -> torch.Tensor:
     img = Image.open(img_path).convert("RGB")
-    return _preprocess(img).unsqueeze(0).to(DEVICE)             # (1, 3, 224, 224)
+    return _preprocess(img).unsqueeze(0).to(DEVICE)
+
 
 def _load_batch(img_paths: list[str]) -> torch.Tensor:
     tensors = [_preprocess(Image.open(p).convert("RGB")) for p in img_paths]
-    return torch.stack(tensors).to(DEVICE)                      # (N, 3, 224, 224)
+    return torch.stack(tensors).to(DEVICE)
+
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
-
 def predict(img_path: str) -> tuple[str, float]:
-    """Return the top predicted species and its confidence score."""
+    _ensure_loaded()
     with torch.no_grad():
         proba = torch.softmax(_model(_load_tensor(img_path)), dim=1).squeeze()
-
     confidence, class_idx = proba.max(dim=0)
     species = _le.inverse_transform([class_idx.item()])[0]
     return species, round(confidence.item(), 4)
 
 
 def predict_top3(img_path: str) -> list[tuple[str, float]]:
-    """Return the top-3 predicted species with confidence scores."""
+    _ensure_loaded()
     with torch.no_grad():
         proba = torch.softmax(_model(_load_tensor(img_path)), dim=1).squeeze()
-
     top3 = proba.topk(3)
     return [
         (_le.classes_[i.item()], round(p.item(), 4))
@@ -99,17 +164,13 @@ def predict_top3(img_path: str) -> list[tuple[str, float]]:
 
 
 def predict_set(img_paths: list[str], batch_size: int = 32) -> list[tuple[str, float]]:
-    """Run batch inference on a list of image paths.
-
-    Processes images in chunks of batch_size so large sets don't exhaust GPU memory.
-    Returns one (species, confidence) tuple per input image, in the same order.
-    """
+    _ensure_loaded()
     results = []
     for start in range(0, len(img_paths), batch_size):
         chunk = img_paths[start : start + batch_size]
-        batch = _load_batch(chunk)                               # (N, 3, 224, 224)
+        batch = _load_batch(chunk)
         with torch.no_grad():
-            proba = torch.softmax(_model(batch), dim=1)          # (N, num_classes)
+            proba = torch.softmax(_model(batch), dim=1)
         confidences, class_idxs = proba.max(dim=1)
         species = _le.inverse_transform(class_idxs.cpu().tolist())
         results.extend(
