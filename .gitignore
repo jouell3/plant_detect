@@ -1,5 +1,6 @@
 # Models
 models/
+models_sklearn/
 !models/.gitkeep
 data/
 notebooks/dataset_aromatic_duckduckgo/

@@ -33,8 +33,8 @@ def _resolve_model_dir() -> Path:
 
 
 _MODEL_DIR = _resolve_model_dir()  # backend/app/models/
-_WEIGHTS_PATH = _MODEL_DIR / "resnet18_plants.pt"
-_ENCODER_PATH = _MODEL_DIR / "label_encoder.pkl"
+_WEIGHTS_PATH = _MODEL_DIR / "resnet18_plants_20260322_22h50.pt"
+_ENCODER_PATH = _MODEL_DIR / "label_encoder_20260322_22h50.pkl"
 
 IMG_SIZE = 224
 
