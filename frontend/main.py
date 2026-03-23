@@ -43,4 +43,4 @@ Les labels sont sauvegardés dans un fichier CSV réutilisable pour entraîner o
 """)
 
 st.divider()
-st.caption("Modèle : ResNet18 • Déploiement : Google Cloud Run • Stockage : Google Cloud Storage")
+st.caption("• Modèle : ResNet18  \n • Déploiement : Google Cloud Run  \n • Stockage : Google Cloud Storage")

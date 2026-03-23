@@ -1,3 +1,7 @@
 loguru==0.7.2
 
 streamlit==1.25.0
+
+-e .
+
+torchvision==0.17.2

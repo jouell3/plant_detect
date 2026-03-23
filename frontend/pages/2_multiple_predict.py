@@ -1,8 +1,10 @@
 from pathlib import Path
 
 import streamlit as st
-from herbs_detection.model import predict_top3
+from herbs_detection.model import predict_top3, load_model
 from herbs_detection.model_sklearn import predict_top3 as predict_top3_sklearn
+
+load_model()
 
 st.set_page_config(page_title="Batch Predict", layout="wide")
 

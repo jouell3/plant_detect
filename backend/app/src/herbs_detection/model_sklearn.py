@@ -15,7 +15,7 @@ from torchvision import models, transforms
 def _resolve_sklearn_dir() -> Path:
     candidates = []
 
-    env_path = os.getenv("MODEL_PATH")
+    env_path = os.getenv("MODEL_SKLEARN_PATH")
     if env_path:
         p = Path(env_path)
         candidates.append(p.parent if p.suffix == ".json" else p)

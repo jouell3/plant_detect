@@ -14,7 +14,7 @@ from torchvision import models, transforms
 _GCS_BUCKET   = os.getenv("GCS_BUCKET_NAME", "")
 _GCS_PREFIX   = os.getenv("GCS_MODELS_PREFIX", "models").rstrip("/")
 _GCS_PROJECT  = os.getenv("GCS_PROJECT", "bootcamparomatic")
-_MODEL_FILES  = ["resnet18_plants.pt", "label_encoder.pkl"]
+_MODEL_FILES  = ["resnet18_plants_20260322_22h50.pt", "label_encoder_20260322_22h50.pkl"]
 
 
 def _download_from_gcs(local_dir: Path) -> None:
@@ -55,7 +55,6 @@ def _resolve_model_dir() -> Path:
             return gcs_dest
         except Exception as exc:
             logger.warning("GCS download failed ({}), falling back to local files.", exc)
-
     # ── 2. Fallback: use pre-existing local files ─────────────────────────
     fallback_candidates: list[Path] = []
 
@@ -75,7 +74,7 @@ def _resolve_model_dir() -> Path:
 
     raise FileNotFoundError(
         "GCS download failed and no local model files were found. "
-        "Set GCS_BUCKET_NAME or place resnet18_plants.pt + label_encoder.pkl "
+        "Set GCS_BUCKET_NAME or place resnet18_plants_20260322_22h50.pt + label_encoder_20260322_22h50.pkl "
         "in backend/app/models/."
     )
 
@@ -106,8 +105,8 @@ def load_model() -> None:
     global _le, _model
 
     model_dir     = _resolve_model_dir()
-    weights_path  = model_dir / "resnet18_plants.pt"
-    encoder_path  = model_dir / "label_encoder.pkl"
+    weights_path  = model_dir / "resnet18_plants_20260322_22h50.pt"
+    encoder_path  = model_dir / "label_encoder_20260322_22h50.pkl"
 
     with open(encoder_path, "rb") as f:
         _le = pickle.load(f)
