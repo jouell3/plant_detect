@@ -6,13 +6,54 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn as nn
+from loguru import logger
 from PIL import Image
 from torchvision import models, transforms
+
+# ---------------------------------------------------------------------------
+# GCS download helper
+# ---------------------------------------------------------------------------
+_GCS_BUCKET        = os.getenv("GCS_BUCKET_NAME", "")
+_GCS_SKLEARN_PREFIX = os.getenv("GCS_SKLEARN_PREFIX", "models_sklearn").rstrip("/")
+_GCS_PROJECT       = os.getenv("GCS_PROJECT", "bootcamparomatic")
+_SKLEARN_MODEL_FILES = [
+    "config_sklearn.json",
+    "label_encoder_sklearn.pkl",
+    "efficientnet_b3__logistic_regression.pkl",
+]
+
+
+def _download_from_gcs_sklearn(local_dir: Path) -> None:
+    from google.cloud import storage
+
+    logger.info("Downloading sklearn models from gs://{}/{}/", _GCS_BUCKET, _GCS_SKLEARN_PREFIX)
+    client = storage.Client(project=_GCS_PROJECT)
+    bucket = client.bucket(_GCS_BUCKET)
+
+    local_dir.mkdir(parents=True, exist_ok=True)
+    for filename in _SKLEARN_MODEL_FILES:
+        blob_name = f"{_GCS_SKLEARN_PREFIX}/{filename}"
+        dest = local_dir / filename
+        logger.debug("  {} → {}", blob_name, dest)
+        bucket.blob(blob_name).download_to_filename(str(dest))
+    logger.info("GCS sklearn download complete.")
+
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 def _resolve_sklearn_dir() -> Path:
+    # ── 1. Try GCS first ─────────────────────────────────────────────────
+    logger.info("Resolving sklearn model directory...")
+    if _GCS_BUCKET:
+        gcs_dest = Path.cwd() / "backend/app/models_sklearn/gcp_download"
+        try:
+            _download_from_gcs_sklearn(gcs_dest)
+            return gcs_dest
+        except Exception as exc:
+            logger.warning("GCS sklearn download failed ({}), falling back to local files.", exc)
+
+    # ── 2. Fallback: use pre-existing local files ─────────────────────────
     candidates = []
 
     env_path = os.getenv("MODEL_PATH")
@@ -32,7 +73,7 @@ def _resolve_sklearn_dir() -> Path:
     print("Searched for sklearn model files in the following locations:")
     for c in candidates:
         print(f"  - {c}")
-        
+
     raise FileNotFoundError(
         "Could not find models_sklearn directory. "
         "Set MODEL_SKLEARN_PATH to the folder containing the sklearn model files."
@@ -47,10 +88,16 @@ def _load_config(models_dir: Path) -> dict:
             with open(p) as f:
                 return json.load(f)
 
+    # Check for plain config_sklearn.json first (downloaded from GCS)
+    plain = models_dir / "config_sklearn.json"
+    if plain.is_file():
+        with open(plain) as f:
+            return json.load(f)
+
     # Use the most recently trained config (sorted by timestamp in filename)
     configs = sorted(models_dir.glob("config_sklearn__*.json"))
     if not configs:
-        raise FileNotFoundError(f"No config_sklearn__*.json found in {models_dir}")
+        raise FileNotFoundError(f"No config_sklearn.json or config_sklearn__*.json found in {models_dir}")
 
     with open(configs[-1]) as f:
         return json.load(f)
