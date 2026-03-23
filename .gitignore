@@ -8,7 +8,24 @@ notebooks/dataset_aromatic_duckduckgo/
 # Env
 .env
 .envrc
+
+# GCP credentials — never commit
+*.json
+service-account*.json
+*-credentials.json
 mlartifacts
 mlflow-artifacts
 mlruns
 mlflow.db
+
+# python
+*/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+*.venv
+venv/
+ENV/
+env/
+.venv/

@@ -1,13 +1,27 @@
 import os
 import tempfile
+import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile
-from herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set
-from herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set
+
+from ..src.herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set
+from ..src.herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set
+
+from loguru import logger
 import uvicorn
 
-api = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting up — loading model in background thread...")
+    threading.Thread(target=load_model, daemon=True).start()
+    yield
+    logger.info("Shutting down.")
+
+
+api = FastAPI(lifespan=lifespan)
 
 ## to start the server: uvicorn app.api.main:api --reload
 
@@ -23,6 +37,7 @@ async def predict_endpoint(file: UploadFile):
     Returns top-3 predictions from both the PyTorch (ResNet18) and
     sklearn (EfficientNet-B3 + LogisticRegression) models for comparison.
     """
+    logger.info("predict_herb | file={}", file.filename)
     suffix = Path(file.filename).suffix
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
         tmp.write(await file.read())
@@ -37,12 +52,12 @@ async def predict_endpoint(file: UploadFile):
         "sklearn": [{"species": s, "confidence": c} for s, c in sklearn_preds],
     }
 
-
 @api.post("/predict-set")
 async def predict_set_endpoint(files: list[UploadFile]):
     """Predict species for a batch of uploaded images.
     Returns predictions from both models for each image.
     """
+    logger.info("predict_set | {} files", len(files))
     tmp_paths, filenames = [], []
     for file in files:
         suffix = Path(file.filename).suffix
@@ -57,6 +72,7 @@ async def predict_set_endpoint(files: list[UploadFile]):
     for p in tmp_paths:
         Path(p).unlink()
 
+    logger.debug("predict_set | results={}", results)
     return [
         {
             "filename": f,
