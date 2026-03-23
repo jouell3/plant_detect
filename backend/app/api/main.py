@@ -6,7 +6,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile
 
-from ..src.herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set
+from ..src.herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set, load_model
 from ..src.herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set
 
 from loguru import logger

@@ -15,7 +15,7 @@ from torchvision import models, transforms
 def _resolve_sklearn_dir() -> Path:
     candidates = []
 
-    env_path = os.getenv("MODEL_SKLEARN_PATH")
+    env_path = os.getenv("MODEL_PATH")
     if env_path:
         p = Path(env_path)
         candidates.append(p.parent if p.suffix == ".json" else p)
@@ -29,6 +29,10 @@ def _resolve_sklearn_dir() -> Path:
         if p.exists():
             return p
 
+    print("Searched for sklearn model files in the following locations:")
+    for c in candidates:
+        print(f"  - {c}")
+        
     raise FileNotFoundError(
         "Could not find models_sklearn directory. "
         "Set MODEL_SKLEARN_PATH to the folder containing the sklearn model files."
