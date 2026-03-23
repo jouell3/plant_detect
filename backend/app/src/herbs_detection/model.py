@@ -79,7 +79,6 @@ def _resolve_model_dir() -> Path:
         "in backend/app/models/."
     )
 
-
 IMG_SIZE = 224
 DEVICE   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
