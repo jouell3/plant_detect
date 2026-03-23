@@ -60,6 +60,8 @@ if "label_page" not in st.session_state:
     st.session_state.label_page = 0
 if "labels" not in st.session_state:
     st.session_state.labels = {}
+if "label_uploader_key" not in st.session_state:
+    st.session_state.label_uploader_key = 0
 
 # ---------------------------------------------------------------------------
 # Sidebar
@@ -89,6 +91,10 @@ with st.sidebar:
 # ---------------------------------------------------------------------------
 st.title("Image Labeling")
 
+st.markdown("Vous pouvez parcourir les images de votre dataset par dossier, et selectionner les images qui serviront à l'entraînement de votre modèle. Les labels pouront être exporter dans un fichier CSV réutilisable pour entraîner ou ré-entraîner votre modèle.")
+
+st.markdown("Pour commencer, uploadez vos images (format .jpg ou .jpeg) via le bouton ci-dessous. Vous pouvez également uploader un fichier CSV de labels déjà existant pour pré-remplir les sélections (optionnel).")  
+
 col_path, col_btn = st.columns([5, 1])
 with col_path:
     uploaded_images = st.file_uploader(
@@ -96,11 +102,13 @@ with col_path:
         label_visibility="collapsed",
         accept_multiple_files=True,
         type=["jpg", "jpeg"],
+        key=f"img_uploader_{st.session_state.label_uploader_key}",
     )
     uploaded_labels = st.file_uploader(
         label="Label CSV (optional)",
         label_visibility="collapsed",
         type=["csv"],
+        key=f"csv_uploader_{st.session_state.label_uploader_key}",
     )
 with col_btn:
     load_clicked = st.button("Load", use_container_width=True)
@@ -114,6 +122,7 @@ if load_clicked:
             {"name": f.name, "bytes": f.read()} for f in uploaded_images
         ]
         st.session_state.label_page = 0
+        st.session_state.label_uploader_key += 1  # reset uploaders on next render
         if uploaded_labels is not None:
             st.session_state.labels = load_labels_from_upload(uploaded_labels)
             st.success(f"Loaded {len(st.session_state.label_image_files)} images and labels from {uploaded_labels.name}.")

@@ -9,7 +9,7 @@ load_model()
 st.set_page_config(page_title="Batch Predict", layout="wide")
 
 GRID_COLS = 5
-GRID_ROWS = 20
+GRID_ROWS = 5
 PAGE_SIZE = GRID_COLS * GRID_ROWS  # 100
 
 
@@ -34,11 +34,17 @@ if "predict_image_files" not in st.session_state:
     st.session_state.predict_image_files = []  # list of {"name": str, "bytes": bytes}
 if "predict_page" not in st.session_state:
     st.session_state.predict_page = 0
+if "predict_uploader_key" not in st.session_state:
+    st.session_state.predict_uploader_key = 0
 
 # ---------------------------------------------------------------------------
 # Header + file uploader
 # ---------------------------------------------------------------------------
 st.title("Batch Predictions")
+st.markdown("""Cette page vous permet de faire des prédictions sur plusieurs images à la fois. Il suffit de les uploader ci-dessous, puis de naviguer dans les pages de résultats.
+            \n Vous pourrez visualiser les prédictions de deux modèles différents : le modèle PyTorch (ResNet18) et un modèle Sklearn utilisant des features extraites d'un backbone EfficientNet B3 de 1536 dimensions.""")
+st.markdown("Note : les prédictions sont faites en temps réel via des appels à l'API hébergée sur Google Cloud Run, donc un peu de patience pendant le chargement !")
+
 
 col_path, col_btn = st.columns([5, 1])
 with col_path:
@@ -47,6 +53,7 @@ with col_path:
         label_visibility="collapsed",
         accept_multiple_files=True,
         type=["jpg", "jpeg", "png"],
+        key=f"predict_uploader_{st.session_state.predict_uploader_key}",
     )
 with col_btn:
     load_clicked = st.button("Load", use_container_width=True)
@@ -59,6 +66,9 @@ if load_clicked:
             {"name": f.name, "bytes": f.read()} for f in uploaded_images
         ]
         st.session_state.predict_page = 0
+        st.session_state.predict_uploader_key += 1  # reset uploader on next render
+        cached_predict_top3.clear()
+        cached_predict_top3_sklearn.clear()
         st.success(f"Loaded {len(st.session_state.predict_image_files)} images.")
 
 if not st.session_state.predict_image_files:

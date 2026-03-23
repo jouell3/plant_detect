@@ -1,5 +1,7 @@
 import io
+import json
 import os
+from pathlib import Path
 
 import requests
 import streamlit as st
@@ -8,64 +10,54 @@ from PIL import Image
 
 API_URL = os.environ.get("API_URL", "https://herb-predictor-966041648100.europe-west1.run.app")
 
+_FICHES_PATH = Path(__file__).parent.parent / "fiches.json"
+FICHES: dict = json.loads(_FICHES_PATH.read_text(encoding="utf-8")) if _FICHES_PATH.exists() else {}
+
 st.set_page_config(page_title="Plant Predictor", layout="wide")
 
 st.title("🌿 Plant Predictor")
-st.caption("Upload one or several images — or take a photo — to identify your aromatic plants.")
+st.markdown("Vous pouvez soit choisir une image dans vos dossiers, soit prendre une photo directement avec votre caméra. Le modèle de reconnaissance d'herbes aromatiques vous donnera une prédiction en temps réel avec un score de confiance. N'hésitez pas à tester plusieurs images pour voir les résultats !")
+st.markdown("Pour predire plusieurs images à la fois, rendez-vous dans l'onglet 'Batch Predict'.")
 
 # ---------------------------------------------------------------------------
 # Input
 # ---------------------------------------------------------------------------
-tab_upload, tab_camera = st.tabs(["📁 Upload images", "📷 Camera"])
+tab_upload, tab_camera = st.tabs(["📁 Upload image", "📷 Camera"])
 
-uploaded_files = []
+uploaded_file = None
 
 with tab_upload:
-    files = st.file_uploader(
-        "Choose one or several images",
+    f = st.file_uploader(
+        "Choisissez une image (jpg/jpeg/png)",
         type=["jpg", "jpeg", "png"],
-        accept_multiple_files=True,
+        accept_multiple_files=False,
         label_visibility="collapsed",
     )
-    if files:
-        uploaded_files = files
+    if f:
+        uploaded_file = f
 
 with tab_camera:
-    photo = st.camera_input("Take a picture", label_visibility="collapsed")
+    photo = st.camera_input("Prenez une photo", label_visibility="collapsed")
     if photo:
-        uploaded_files = [photo]
+        uploaded_file = photo
 
 # ---------------------------------------------------------------------------
 # Predict
 # ---------------------------------------------------------------------------
-if not uploaded_files:
+if not uploaded_file:
     st.stop()
 
 st.divider()
 
 if st.button("🔍 Identify", type="primary", use_container_width=False):
-    is_batch = len(uploaded_files) > 1
-
     with st.spinner("Analysing…"):
         try:
-            if is_batch:
-                logger.info("predict-set | {} images", len(uploaded_files))
-                response = requests.post(
-                    f"{API_URL}/predict-set",
-                    files=[
-                        ("files", (f.name, f.getvalue(), f.type or "image/jpeg"))
-                        for f in uploaded_files
-                    ],
-                    timeout=60,
-                )
-            else:
-                f = uploaded_files[0]
-                logger.info("predict_herb | file={}", f.name)
-                response = requests.post(
-                    f"{API_URL}/predict_herb",
-                    files={"file": (f.name, f.getvalue(), f.type or "image/jpeg")},
-                    timeout=60,
-                )
+            logger.info("predict_herb | file={}", uploaded_file.name)
+            response = requests.post(
+                f"{API_URL}/predict_herb",
+                files={"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type or "image/jpeg")},
+                timeout=60,
+            )
             response.raise_for_status()
 
         except requests.exceptions.ConnectionError:
@@ -78,48 +70,49 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
             st.stop()
 
     # ── Parse results ─────────────────────────────────────────────────────
-    if is_batch:
-        raw = response.json()   # list of {filename, species, confidence}
-        results = {item["filename"]: item for item in raw}
-    else:
-        data = response.json()  # {predictions: [{species, confidence}, ...]}
-        results = {uploaded_files[0].name: {
-            "filename": uploaded_files[0].name,
-            "species": data["predictions"][0]["species"],
-            "confidence": data["predictions"][0]["confidence"],
-            "top3": data["predictions"],
-        }}
+    data = response.json()  # {predictions: [{species, confidence}, ...]}
+    top3 = data["predictions"]
 
     # ── Display ───────────────────────────────────────────────────────────
-    st.subheader("Results")
-    cols = st.columns(min(len(uploaded_files), 4))
+    st.subheader("Résultats")
+    col_img, col_res = st.columns([1, 2])
 
-    for idx, f in enumerate(uploaded_files):
-        col = cols[idx % len(cols)]
-        res = results.get(f.name, {})
+    with col_img:
+        img = Image.open(io.BytesIO(uploaded_file.getvalue()))
+        st.image(img, width=400, caption=uploaded_file.name)
 
-        with col:
-            img = Image.open(io.BytesIO(f.getvalue()))
-            st.image(img, width=180)
+    with col_res:
+        species    = top3[0]["species"]
+        confidence = top3[0]["confidence"]
+        color = "#2e7d32" if confidence >= 0.75 else "#f57c00" if confidence >= 0.5 else "#c62828"
 
-            species    = res.get("species", "—")
-            confidence = res.get("confidence", 0)
+        st.markdown(
+            f"<p style='font-size:1.4rem; font-weight:700; margin:0'>{species}</p>"
+            f"<p style='color:{color}; font-size:1.1rem; margin:4px 0 16px'>"
+            f"{confidence:.0%} confidence</p>",
+            unsafe_allow_html=True,
+        )
 
-            color = "#2e7d32" if confidence >= 0.75 else "#f57c00" if confidence >= 0.5 else "#c62828"
-            st.markdown(
-                f"<p style='text-align:center; font-size:1.1rem; font-weight:600; margin:4px 0'>"
-                f"{species}</p>"
-                f"<p style='text-align:center; color:{color}; font-size:0.95rem; margin:0'>"
-                f"{confidence:.0%} confidence</p>",
-                unsafe_allow_html=True,
-            )
+        st.markdown("**Top 3**")
+        for rank, pred in enumerate(top3, 1):
+            bar_pct = int(pred["confidence"] * 100)
+            st.markdown(f"**{rank}. {pred['species']}** — {pred['confidence']:.0%}")
+            st.progress(bar_pct)
 
-            # Top-3 only available on single-image endpoint
-            if "top3" in res:
-                with st.expander("Top 3"):
-                    for rank, pred in enumerate(res["top3"], 1):
-                        bar_pct = int(pred["confidence"] * 100)
-                        st.markdown(
-                            f"**{rank}. {pred['species']}** — {pred['confidence']:.0%}"
-                        )
-                        st.progress(bar_pct)
+    # ── Herb info card ─────────────────────────────────────────────────────
+    fiche = FICHES.get(top3[0]["species"].lower())
+    if fiche:
+        st.divider()
+        st.subheader(f"À propos — {fiche['nom_fr']} (*{fiche['nom_en']}*)")
+        st.markdown(fiche["description"])
+
+        info_col1, info_col2 = st.columns(2)
+        with info_col1:
+            st.markdown(f"🌸 **Arôme** : {fiche['arome']}")
+            st.markdown(f"🌱 **Culture** : {fiche['culture']}")
+            st.markdown(f"⚠️ **Toxicité** : {fiche['toxicite']}")
+        with info_col2:
+            st.markdown(f"🍽️ **Usages** : {', '.join(fiche['usages'])}")
+            st.markdown(f"🤝 **Compatible avec** : {', '.join(fiche['compatibilites'])}")
+
+
