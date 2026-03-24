@@ -1,6 +1,8 @@
 # Models
 models/
 models_sklearn/
+models_tensorflow/
+models_pytorch_large/
 !models/.gitkeep
 data/
 notebooks/dataset_aromatic_duckduckgo/

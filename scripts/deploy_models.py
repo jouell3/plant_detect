@@ -1,8 +1,10 @@
 """
 Deploy model files to Google Cloud Storage.
 
-PyTorch models  → gs://<bucket>/models/
-Sklearn models  → gs://<bucket>/models_sklearn/
+PyTorch models          → gs://<bucket>/models/
+Sklearn models          → gs://<bucket>/models_sklearn/
+TensorFlow models       → gs://<bucket>/models_tensorflow/
+PyTorch large models    → gs://<bucket>/models_pytorch_large/
 
 For sklearn, the most recent timestamped files are selected and uploaded
 under the canonical names expected by model_sklearn.py:
@@ -29,6 +31,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MODELS_DIR = REPO_ROOT / "backend" / "app" / "models"
 MODELS_SKLEARN_DIR = REPO_ROOT / "backend" / "app" / "models_sklearn"
+MODELS_TENSORFLOW_DIR = REPO_ROOT / "backend" / "app" / "models_tensorflow"
+MODELS_PYTORCH_LARGE_DIR = REPO_ROOT / "backend" / "app" / "models_pytorch_large"
 
 # ---------------------------------------------------------------------------
 # Files to upload for PyTorch model (path → GCS blob name)
@@ -60,6 +64,15 @@ def build_sklearn_files(sklearn_dir: Path) -> dict[Path, str]:
     }
 
 
+def build_dir_files(directory: Path, gcs_folder: str) -> dict[Path, str]:
+    """Return all files in directory mapped to their GCS blob name under gcs_folder."""
+    return {
+        f: f"{gcs_folder}/{f.name}"
+        for f in sorted(directory.iterdir())
+        if f.is_file()
+    }
+
+
 def upload(bucket, local_path: Path, blob_name: str, dry_run: bool) -> None:
     size_mb = local_path.stat().st_size / 1_048_576
     print(f"  {'[DRY-RUN] ' if dry_run else ''}uploading {local_path.name} ({size_mb:.1f} MB) → gs://{bucket.name}/{blob_name}")
@@ -81,7 +94,10 @@ def main() -> None:
         print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
 
-    all_files = {**PYTORCH_FILES, **sklearn_files}
+    tensorflow_files = build_dir_files(MODELS_TENSORFLOW_DIR, "models_tensorflow")
+    pytorch_large_files = build_dir_files(MODELS_PYTORCH_LARGE_DIR, "models_pytorch_large")
+
+    all_files = {**PYTORCH_FILES, **sklearn_files, **tensorflow_files, **pytorch_large_files}
 
     # Validate local files exist
     missing = [p for p in all_files if not p.exists()]
@@ -108,6 +124,14 @@ def main() -> None:
 
     print("\nSklearn model (most recent files):")
     for local_path, blob_name in sklearn_files.items():
+        upload(bucket, local_path, blob_name, args.dry_run)
+
+    print("\nTensorFlow model:")
+    for local_path, blob_name in tensorflow_files.items():
+        upload(bucket, local_path, blob_name, args.dry_run)
+
+    print("\nPyTorch large model:")
+    for local_path, blob_name in pytorch_large_files.items():
         upload(bucket, local_path, blob_name, args.dry_run)
 
     print("\nDone." if not args.dry_run else "\nDry run complete — nothing was uploaded.")
