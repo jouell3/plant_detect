@@ -8,7 +8,8 @@ import streamlit as st
 from loguru import logger
 from PIL import Image
 
-API_URL = os.environ.get("API_URL", "https://herb-predictor-966041648100.europe-west1.run.app")
+API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
+
 
 _FICHES_PATH = Path(__file__).parent.parent / "fiches.json"
 FICHES: dict = json.loads(_FICHES_PATH.read_text(encoding="utf-8")) if _FICHES_PATH.exists() else {}
@@ -71,6 +72,8 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
 
     # ── Parse results ─────────────────────────────────────────────────────
     data = response.json()  # {predictions: [{species, confidence}, ...]}
+    st.text(data)
+    
     top3 = data["predictions"]
 
     # ── Display ───────────────────────────────────────────────────────────
