@@ -1,6 +1,8 @@
 # Models
 models/
 models_sklearn/
+model_pytorch_l/
+model_tf/
 !models/.gitkeep
 data/
 notebooks/dataset_aromatic_duckduckgo/
