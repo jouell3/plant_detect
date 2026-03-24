@@ -130,5 +130,5 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
                 st.markdown(f"🍽️ **Usages** : {', '.join(fiche['usages'])}")
                 st.markdown(f"🤝 **Compatible avec** : {', '.join(fiche['compatibilites'])}")
 
-
-    st.markdown(f"### Les {len(models_list)} modèles ne sont pas d'accord sur la prédiction de l'herbe sur la photo. Veuillez essayer avec une autre image ou prendre la photo dans de meilleures conditions d'éclairage ou d'angle.")
+    if len(set(herb_found)) != 1:
+        st.markdown(f"### Les {len(models_list)} modèles ne sont pas d'accord sur la prédiction de l'herbe sur la photo. Veuillez essayer avec une autre image ou prendre la photo dans de meilleures conditions d'éclairage ou d'angle.")
