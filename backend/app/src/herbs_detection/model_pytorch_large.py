@@ -116,7 +116,6 @@ def _resolve_pytorch_large_dir() -> Path:
 
     logger.debug("Large pytorch model directory candidates: {}", candidates)
     for directory in candidates:
-        logger.error("sqdqwd")
         if not directory.exists():
             continue
         try:

@@ -12,14 +12,14 @@ from PIL import Image
 # ---------------------------------------------------------------------------
 # GCS download helper
 # ---------------------------------------------------------------------------
-_GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "")
-_GCS_TF_PREFIX = os.getenv("GCS_TF_PREFIX", "model_tf").rstrip("/")
+_GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "plant-detect-models")
+_GCS_TF_PREFIX = os.getenv("GCS_TF_PREFIX", "models_tensorflow").rstrip("/")
 _GCS_PROJECT = os.getenv("GCS_PROJECT", "bootcamparomatic")
 
 _MODEL_FILE_PATTERNS = {
-    "model": "*_model.keras",
-    "encoder": "*_label_encoder.pkl",
-    "metadata": "*_metadata.pkl",
+    "model": "*_model_*.keras",
+    "encoder": "*_label_encoder_*.pkl",
+    "metadata": "*_metadata_*.pkl",
 }
 
 DEVICE = "GPU" if tf.config.list_physical_devices("GPU") else "CPU"
@@ -87,7 +87,7 @@ def _download_from_gcs_tensorflow(local_dir: Path) -> None:
 def _resolve_tensorflow_dir() -> Path:
     logger.info("Resolving tensorflow model directory...")
     if _GCS_BUCKET:
-        gcs_dest = Path.cwd() / "backend/app/model_tf/gcp_download"
+        gcs_dest = Path.cwd() / "models_tensorflow/gcp_download"
         try:
             _download_from_gcs_tensorflow(gcs_dest)
             return gcs_dest
@@ -106,9 +106,9 @@ def _resolve_tensorflow_dir() -> Path:
             candidates.append(p.parent if p.is_file() else p)
 
     here = Path(__file__).resolve()
-    candidates.append(here.parents[2] / "model_tf")
-    candidates.append(Path.cwd() / "backend/app/model_tf")
-    candidates.append(Path.cwd() / "app/model_tf")
+    candidates.append(here.parents[2] / "models_tensorflow")
+    candidates.append(Path.cwd() / "backend/app/models_tensorflow")
+    candidates.append(Path.cwd() / "app/models_tensorflow")
 
     for directory in candidates:
         if not directory.exists():
@@ -121,9 +121,9 @@ def _resolve_tensorflow_dir() -> Path:
             continue
 
     raise FileNotFoundError(
-        "Could not find a model_tf directory with matching .keras, "
+        "Could not find a models_tensorflow directory with matching .keras, "
         "label encoder, and metadata files. Set MODEL_TF_PATH or "
-        "place the files in backend/app/model_tf/."
+        "place the files in backend/app/models_tensorflow/."
     )
 
 

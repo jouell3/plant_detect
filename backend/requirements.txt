@@ -4,8 +4,8 @@ fastapi-cloud-cli==0.15.0
 
 uvicorn==0.30.6
 
-torch==2.10.0
-torchvision==0.25.0
+torch==2.2.2
+torchvision==0.17.2
 
 pillow==10.4.0
 
@@ -16,3 +16,5 @@ python-multipart==0.0.9
 google-cloud-storage==2.18.2
 
 loguru==0.7.2
+
+tensorflow==2.16.2
