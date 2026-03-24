@@ -54,9 +54,9 @@ def build_sklearn_files(sklearn_dir: Path) -> dict[Path, str]:
     pipeline = _pick_latest(sklearn_dir, "efficientnet_b3__logistic_regression__*.pkl")
 
     return {
-        config:   "models_sklearn/config_sklearn.json",
-        encoder:  "models_sklearn/label_encoder_sklearn.pkl",
-        pipeline: "models_sklearn/efficientnet_b3__logistic_regression.pkl",
+        config:   f"models_sklearn/{config.name}",
+        encoder:  f"models_sklearn/{encoder.name}",
+        pipeline: f"models_sklearn/{pipeline.name}",
     }
 
 
