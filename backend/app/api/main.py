@@ -6,8 +6,8 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile
 
-from ..src.herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set, load_model
-from ..src.herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set
+from ..src.herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set, load_model as load_model_pytorch
+from ..src.herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set, load_model as load_model_sklearn
 
 from loguru import logger
 import uvicorn
@@ -16,7 +16,8 @@ import uvicorn
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up — loading model in background thread...")
-    threading.Thread(target=load_model, daemon=True).start()
+    threading.Thread(target=load_model_pytorch, daemon=True).start()
+    threading.Thread(target=load_model_sklearn, daemon=True).start()
     yield
     logger.info("Shutting down.")
 

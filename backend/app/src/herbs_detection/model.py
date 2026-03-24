@@ -48,8 +48,10 @@ def _resolve_model_dir() -> Path:
          - backend/app/models/ relative to the source tree
     """
     # ── 1. Try GCS first ─────────────────────────────────────────────────
+    logger.info("Resolving model directory...")
+    logger.info("_GCS_BUCKET = '{}'", _GCS_BUCKET)
     if _GCS_BUCKET:
-        gcs_dest = Path(os.getenv("MODEL_PATH", "models/gcp_download"))
+        gcs_dest = Path.cwd() / "backend/app/models/gcp_download"
         try:
             _download_from_gcs(gcs_dest)
             return gcs_dest
@@ -67,7 +69,7 @@ def _resolve_model_dir() -> Path:
     fallback_candidates.append(here.parents[2] / "models")      # backend/app/models
     fallback_candidates.append(Path.cwd() / "backend/app/models")
     fallback_candidates.append(Path.cwd() / "app/models")
-
+    
     for p in fallback_candidates:
         if p.is_dir() and all((p / f).exists() for f in _MODEL_FILES):
             logger.info("Using local model files from {}", p)
