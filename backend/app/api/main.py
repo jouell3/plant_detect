@@ -8,6 +8,7 @@ from fastapi import FastAPI, File, UploadFile
 
 from ..src.herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set, load_model as load_model_pytorch
 from ..src.herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set, load_model as load_model_sklearn
+from ..src.herbs_detection.model_pytorch_large import predict_top3 as ptl_top3, predict_set as ptl_set, load_model as load_model_pytorch_large
 
 from loguru import logger
 import uvicorn
@@ -18,6 +19,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up — loading model in background thread...")
     threading.Thread(target=load_model_pytorch, daemon=True).start()
     threading.Thread(target=load_model_sklearn, daemon=True).start()
+    threading.Thread(target=load_model_pytorch_large, daemon=True).start()
     yield
     logger.info("Shutting down.")
 
@@ -46,11 +48,13 @@ async def predict_endpoint(file: UploadFile):
 
     pytorch_preds = pt_top3(tmp_path)
     sklearn_preds = sk_top3(tmp_path)
+    pytorch_large_preds = ptl_top3(tmp_path)
     Path(tmp_path).unlink()
 
     return {
         "pytorch": [{"species": s, "confidence": c} for s, c in pytorch_preds],
         "sklearn": [{"species": s, "confidence": c} for s, c in sklearn_preds],
+        "pytorch_large": [{"species": s, "confidence": c} for s, c in pytorch_large_preds],
     }
 
 @api.post("/predict-set")
@@ -69,19 +73,19 @@ async def predict_set_endpoint(files: list[UploadFile]):
 
     pytorch_results = pt_set(tmp_paths)
     sklearn_results = sk_set(tmp_paths)
-
+    pytorch_large_results = ptl_set(tmp_paths)
     for p in tmp_paths:
         Path(p).unlink()
 
-    logger.debug("predict_set | results={}", results)
     return [
         {
             "filename": f,
             "pytorch": {"species": pt_s, "confidence": pt_c},
             "sklearn": {"species": sk_s, "confidence": sk_c},
+            "pytorch_large": {"species": ptl_s, "confidence": ptl_c},
         }
-        for f, (pt_s, pt_c), (sk_s, sk_c)
-        in zip(filenames, pytorch_results, sklearn_results)
+        for f, (pt_s, pt_c), (sk_s, sk_c), (ptl_s, ptl_c)
+        in zip(filenames, pytorch_results, sklearn_results, pytorch_large_results)
     ]
 
 
