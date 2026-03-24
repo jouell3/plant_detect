@@ -1,10 +1,12 @@
 import io
 
 import streamlit as st
-from herbs_detection.model import predict_top3, load_model
-from herbs_detection.model_sklearn import predict_top3 as predict_top3_sklearn
 
-load_model()
+from herbs_detection.model import load_model, predict_top3
+from herbs_detection.model_sklearn import predict_top3 as predict_top3_sklearn, load_model as load_model_sklearn
+
+load_model()  # Load the model at startup
+load_model_sklearn()
 
 st.set_page_config(page_title="Batch Predict", layout="wide")
 
