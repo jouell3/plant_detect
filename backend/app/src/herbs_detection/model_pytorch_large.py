@@ -13,7 +13,7 @@ from torchvision import models, transforms
 # GCS download helper
 # ---------------------------------------------------------------------------
 _GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "")
-_GCS_PYTORCH_L_PREFIX = os.getenv("GCS_PYTORCH_L_PREFIX", "model_pytorch_l").rstrip("/")
+_GCS_PYTORCH_LARGE_PREFIX = os.getenv("GCS_PYTORCH_LARGE_PREFIX", "models_pytorch_large").rstrip("/")
 _GCS_PROJECT = os.getenv("GCS_PROJECT", "bootcamparomatic")
 
 _MODEL_FILE_PATTERNS = {
@@ -59,16 +59,16 @@ def _download_from_gcs_pytorch_large(local_dir: Path) -> None:
     logger.info(
         "Downloading large pytorch model from gs://{}/{}/",
         _GCS_BUCKET,
-        _GCS_PYTORCH_L_PREFIX,
+        _GCS_PYTORCH_LARGE_PREFIX,
     )
     client = storage.Client(project=_GCS_PROJECT)
     bucket = client.bucket(_GCS_BUCKET)
 
-    prefix = f"{_GCS_PYTORCH_L_PREFIX}/"
+    prefix = f"{_GCS_PYTORCH_LARGE_PREFIX}/"
     all_blobs = list(bucket.list_blobs(prefix=prefix))
     if not all_blobs:
         raise FileNotFoundError(
-            f"No blobs found under gs://{_GCS_BUCKET}/{_GCS_PYTORCH_L_PREFIX}/"
+            f"No blobs found under gs://{_GCS_BUCKET}/{_GCS_PYTORCH_LARGE_PREFIX}/"
         )
 
     selected = {
@@ -91,7 +91,7 @@ def _download_from_gcs_pytorch_large(local_dir: Path) -> None:
 def _resolve_pytorch_large_dir() -> Path:
     logger.info("Resolving large pytorch model directory...")
     if _GCS_BUCKET:
-        gcs_dest = Path.cwd() / "backend/app/model_pytorch_l/gcp_download"
+        gcs_dest = Path.cwd() / "models_pytorch_large/gcp_download"
         try:
             _download_from_gcs_pytorch_large(gcs_dest)
             return gcs_dest
@@ -103,17 +103,18 @@ def _resolve_pytorch_large_dir() -> Path:
 
     candidates: list[Path] = []
 
-    for env_var in ("MODEL_PYTORCH_L_PATH", "MODEL_PATH"):
+    for env_var in ("MODEL_PYTORCH_LARGE_PATH", "MODEL_PATH"):
         env_path = os.getenv(env_var)
         if env_path:
             p = Path(env_path)
             candidates.append(p.parent if p.is_file() else p)
 
     here = Path(__file__).resolve()
-    candidates.append(here.parents[2] / "model_pytorch_l")
-    candidates.append(Path.cwd() / "backend/app/model_pytorch_l")
-    candidates.append(Path.cwd() / "app/model_pytorch_l")
+    candidates.append(here.parents[2] / "models_pytorch_large")
+    candidates.append(Path.cwd() / "backend/app/models_pytorch_large")
+    candidates.append(Path.cwd() / "app/models_pytorch_large")
 
+    logger.debug("Large pytorch model directory candidates: {}", candidates)
     for directory in candidates:
         if not directory.exists():
             continue
@@ -122,12 +123,13 @@ def _resolve_pytorch_large_dir() -> Path:
             logger.info("Using local large pytorch model files from {}", directory)
             return directory
         except FileNotFoundError:
+            logger.error("Directory {} does not contain required model files, skipping.", directory)
             continue
 
     raise FileNotFoundError(
-        "Could not find a model_pytorch_l directory with matching .pt, "
-        "label encoder, and metadata files. Set MODEL_PYTORCH_L_PATH or "
-        "place the files in backend/app/model_pytorch_l/."
+        "Could not find a models_pytorch_large directory with matching .pt, "
+        "label encoder, and metadata files. Set MODEL_PYTORCH_LARGE_PATH or "
+        "place the files in backend/app/models_pytorch_large/."
     )
 
 
