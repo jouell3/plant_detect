@@ -4,6 +4,7 @@ models/
 models_pt/
 exports/
 artifacts/
+models_sklearn/
 
 # Env
 .env
@@ -15,6 +16,7 @@ mlruns
 mlflow.db
 models
 __pycache__/
+.vscode/
 
 # Big datasets
 data/
