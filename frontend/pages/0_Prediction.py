@@ -72,52 +72,63 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
 
     # ── Parse results ─────────────────────────────────────────────────────
     data = response.json()  # {predictions: [{species, confidence}, ...]}
-    st.text(data)
+    models_used = data.keys()  # e.g. ["pytorch resnet18", "efficientnet_b3_sklearn"]
     
-    top3 = data["predictions"]
+    #top3 = data["predictions"]
 
     # ── Display ───────────────────────────────────────────────────────────
     st.subheader("Résultats")
-    col_img, col_res = st.columns([1, 2])
+    col_img, col_grid = st.columns([1, 2])
 
     with col_img:
         img = Image.open(io.BytesIO(uploaded_file.getvalue()))
         st.image(img, use_column_width=True, caption=uploaded_file.name)
 
-    with col_res:
-        species    = top3[0]["species"]
-        confidence = top3[0]["confidence"]
-        color = "#2e7d32" if confidence >= 0.75 else "#f57c00" if confidence >= 0.5 else "#c62828"
+    with col_grid:
+        models_list = list(models_used)
+        # Render models in a 2-column grid, row by row
+        for i in range(0, len(models_list), 2):
+            grid_cols = st.columns(2)
+            for j, key in enumerate(models_list[i:i+2]):
+                with grid_cols[j]:
+                    st.markdown(f"### Model: {key.upper()}")
+                    species    = data[key][0]["species"]
+                    confidence = data[key][0]["confidence"]
+                    color = "#2e7d32" if confidence >= 0.90 else "#f57c00" if confidence >= 0.5 else "#c62828"
 
-        st.markdown(
-            f"<p style='font-size:1.4rem; font-weight:700; margin:0'>{species}</p>"
-            f"<p style='color:{color}; font-size:1.1rem; margin:4px 0 16px'>"
-            f"{confidence:.0%} confidence</p>",
-            unsafe_allow_html=True,
-        )
+                    st.markdown(
+                        f"<p style='font-size:1.4rem; font-weight:700; margin:0'>{species}</p>"
+                        f"<p style='color:{color}; font-size:1.1rem; margin:4px 0 16px'>"
+                        f"{confidence:.0%} confidence</p>",
+                        unsafe_allow_html=True,
+                    )
 
-        st.markdown("**Top 3**")
-        for rank, pred in enumerate(top3, 1):
-            bar_pct = int(pred["confidence"] * 100)
-            st.markdown(f"**{rank}. {pred['species']}** — {pred['confidence']:.0%}")
-            st.progress(bar_pct)
-
+                    st.markdown("**Top 3**")
+                    for rank, pred in enumerate(data[key], 1):
+                        bar_pct = int(pred["confidence"] * 100)
+                        st.markdown(f"**{rank}. {pred['species']}** — {pred['confidence']:.0%}")
+                        st.progress(bar_pct)
+    
     # ── Herb info card ─────────────────────────────────────────────────────
-    fiche = FICHES.get(top3[0]["species"].lower())
-    if fiche:
-        st.divider()
-        nom_fr_md = f"[{fiche['nom_fr']}]({fiche['wikipedia_fr']})" if fiche.get("wikipedia_fr") else fiche['nom_fr']
-        nom_en_md = f"[{fiche['nom_en']}]({fiche['wikipedia_en']})" if fiche.get("wikipedia_en") else fiche['nom_en']
-        st.markdown(f"### À propos — {nom_fr_md} (*{nom_en_md}*)")
-        st.markdown(fiche["description"])
+    herb_found = [data[key][0]["species"] for key in models_used]
+    
+    if len(set(herb_found)) == 1:  # If both models agree on the same herb, show the info card  
+        fiche = FICHES.get(data[list(data.keys())[0]][0]["species"].lower())
+        if fiche:
+            st.divider()
+            nom_fr_md = f"[{fiche['nom_fr']}]({fiche['wikipedia_fr']})" if fiche.get("wikipedia_fr") else fiche['nom_fr']
+            nom_en_md = f"[{fiche['nom_en']}]({fiche['wikipedia_en']})" if fiche.get("wikipedia_en") else fiche['nom_en']
+            st.markdown(f"### À propos — {nom_fr_md} (*{nom_en_md}*)")
+            st.markdown(fiche["description"])
 
-        info_col1, info_col2 = st.columns(2)
-        with info_col1:
-            st.markdown(f"🌸 **Arôme** : {fiche['arome']}")
-            st.markdown(f"🌱 **Culture** : {fiche['culture']}")
-            st.markdown(f"⚠️ **Toxicité** : {fiche['toxicite']}")
-        with info_col2:
-            st.markdown(f"🍽️ **Usages** : {', '.join(fiche['usages'])}")
-            st.markdown(f"🤝 **Compatible avec** : {', '.join(fiche['compatibilites'])}")
+            info_col1, info_col2 = st.columns(2)
+            with info_col1:
+                st.markdown(f"🌸 **Arôme** : {fiche['arome']}")
+                st.markdown(f"🌱 **Culture** : {fiche['culture']}")
+                st.markdown(f"⚠️ **Toxicité** : {fiche['toxicite']}")
+            with info_col2:
+                st.markdown(f"🍽️ **Usages** : {', '.join(fiche['usages'])}")
+                st.markdown(f"🤝 **Compatible avec** : {', '.join(fiche['compatibilites'])}")
 
 
+    st.markdown(f"### Les {len(models_list)} modèles ne sont pas d'accord sur la prédiction de l'herbe sur la photo. Veuillez essayer avec une autre image ou prendre la photo dans de meilleures conditions d'éclairage ou d'angle.")

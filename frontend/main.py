@@ -15,9 +15,9 @@ basée sur des modèles de deep learning (ResNet18 et EfficientNet) entraîné s
 
 ### 📌 Que fait cette application ?
 
-Cette application te permettra d'identifier une herbe aromatique à partir d'une simple photo prise avec ta caméra 
-ou uploadée depuis tes dossiers. 
-\n Elle te donne une prédiction en temps réel avec un score de confiance, et affiche le top 3 des espèces les plus probables.
+Cette application permet d'identifier une herbe aromatique à partir d'une simple photo prise avec la caméra du téléphone 
+ou téléchargée depuis un dossier. 
+\n Elle te donne une prédiction en temps réel avec un score de confiance, et affiche le top 3 des espèces les plus probables pour différents modèles.
 
 
 ---
@@ -27,8 +27,8 @@ Voici une petite description des différentes pages de l'application :
 ### 🔍 Prédiction
 
 Accède à cet onglet pour :
-- **Uploader une images** de plantes
-- **Prendre une photo** directement depuis ta caméra
+- **Télécharger une images** de plantes aromatiques depuis un dossier
+- **Prendre une photo** directement depuis la caméra du téléphone
 Ceci te permettra d'obtenir une **identification automatique** de l'espèce avec un score de confiance
 Pour plus d'informations, le **top 3** des espèces les plus probables prédit par le modèle est également affiché.
 
@@ -56,8 +56,8 @@ Le nom des images sélectionnées seront sauvegardés dans un fichier CSV réuti
 ### 📊 Prédiction par lot
 
 Accède à cet onglet pour :
-- **Uploader plusieurs images** à la fois
-- **Visualiser les prédictions** obtenues à partir de deux modèles différents : 
+- **Télécharger plusieurs images** à la fois
+- **Visualiser les prédictions** obtenues à partir de différents modèles : 
     - un modèle PyTorch (ResNet18) 
     - un modèle Sklearn utilisant des features extraites d'un backbone EfficientNet B3 de 1536 dimensions.
 """)
