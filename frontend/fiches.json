@@ -2,6 +2,8 @@
   "angelica": {
     "nom_fr": "Angélique",
     "nom_en": "Angelica",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Ang%C3%A9lique_(plante)",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Angelica",
     "description": "Plante aromatique aux tiges parfumées, utilisée en confiserie et en herboristerie.",
     "usages": ["liqueurs", "confiseries", "digestion"],
     "arome": "doux, légèrement musqué",
@@ -12,6 +14,8 @@
   "basil": {
     "nom_fr": "Basilic",
     "nom_en": "Basil",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Basilic_(plante)",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Basil",
     "description": "Herbe incontournable de la cuisine méditerranéenne.",
     "usages": ["pesto", "salades", "plats italiens"],
     "arome": "frais, poivré",
@@ -22,6 +26,8 @@
   "borage": {
     "nom_fr": "Bourrache",
     "nom_en": "Borage",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Bourrache",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Borage",
     "description": "Plante aux fleurs bleues comestibles, au goût rappelant le concombre.",
     "usages": ["salades", "infusions"],
     "arome": "léger, frais",
@@ -32,6 +38,8 @@
   "chamomile": {
     "nom_fr": "Camomille",
     "nom_en": "Chamomile",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Camomille",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Chamomile",
     "description": "Plante médicinale apaisante, souvent utilisée en infusion.",
     "usages": ["infusions", "calmant", "digestion"],
     "arome": "doux, floral",
@@ -42,6 +50,8 @@
   "chives": {
     "nom_fr": "Ciboulette",
     "nom_en": "Chives",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Ciboulette",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Chives",
     "description": "Herbe fraîche au goût d’oignon doux.",
     "usages": ["omelettes", "salades", "sauces"],
     "arome": "oignon léger",
@@ -52,6 +62,8 @@
   "coriander": {
     "nom_fr": "Coriandre",
     "nom_en": "Coriander",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Coriandre",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Coriander",
     "description": "Herbe très aromatique utilisée dans de nombreuses cuisines du monde.",
     "usages": ["cuisine asiatique", "mexicaine", "salades"],
     "arome": "agrumes, herbacé",
@@ -62,6 +74,8 @@
   "dill": {
     "nom_fr": "Aneth",
     "nom_en": "Dill",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Aneth",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Dill",
     "description": "Herbe fine très utilisée avec le poisson.",
     "usages": ["poissons", "cornichons", "sauces"],
     "arome": "anisé, frais",
@@ -72,6 +86,8 @@
   "fennel": {
     "nom_fr": "Fenouil",
     "nom_en": "Fennel",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Fenouil",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Fennel",
     "description": "Plante au goût anisé, utilisée en cuisine et en infusion.",
     "usages": ["poissons", "salades", "infusions"],
     "arome": "anisé",
@@ -82,6 +98,8 @@
   "hyssop": {
     "nom_fr": "Hysope",
     "nom_en": "Hyssop",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Hysope",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Hyssop",
     "description": "Plante méditerranéenne utilisée en herboristerie et en liqueurs.",
     "usages": ["liqueurs", "infusions"],
     "arome": "camphré, floral",
@@ -92,6 +110,8 @@
   "lavender": {
     "nom_fr": "Lavande",
     "nom_en": "Lavender",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Lavande",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Lavender",
     "description": "Plante très parfumée, utilisée en cuisine et en aromathérapie.",
     "usages": ["desserts", "infusions", "parfums"],
     "arome": "floral, sucré",
@@ -102,6 +122,8 @@
   "lemongrass": {
     "nom_fr": "Citronnelle",
     "nom_en": "Lemongrass",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Cymbopogon",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Cymbopogon",
     "description": "Herbe tropicale au parfum citronné, très utilisée en cuisine asiatique.",
     "usages": ["cuisine thaï", "infusions"],
     "arome": "citronné, frais",
@@ -112,6 +134,8 @@
   "lemonverbena": {
     "nom_fr": "Verveine citronnée",
     "nom_en": "Lemon verbena",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Verveine_citronnelle",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Aloysia_citrodora",
     "description": "Plante très parfumée, idéale en infusion.",
     "usages": ["infusions", "desserts"],
     "arome": "citron intense",
@@ -122,6 +146,8 @@
   "lovage": {
     "nom_fr": "Livèche",
     "nom_en": "Lovage",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Liv%C3%A8che",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Lovage",
     "description": "Herbe au goût puissant rappelant le céleri.",
     "usages": ["bouillons", "plats mijotés"],
     "arome": "céleri, herbacé",
@@ -132,6 +158,8 @@
   "mint": {
     "nom_fr": "Menthe",
     "nom_en": "Mint",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Menthe",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Mentha",
     "description": "Herbe fraîche très polyvalente.",
     "usages": ["thé", "desserts", "salades"],
     "arome": "mentholé, frais",
@@ -142,6 +170,8 @@
   "mugwort": {
     "nom_fr": "Armoise",
     "nom_en": "Mugwort",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Armoise",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Mugwort",
     "description": "Plante traditionnelle utilisée en herboristerie.",
     "usages": ["infusions", "digestif"],
     "arome": "amer, herbacé",
@@ -152,6 +182,8 @@
   "oregano": {
     "nom_fr": "Origan",
     "nom_en": "Oregano",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Origan",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Oregano",
     "description": "Herbe méditerranéenne très utilisée dans la cuisine italienne.",
     "usages": ["pizzas", "sauces tomates"],
     "arome": "chaud, légèrement amer",
@@ -162,6 +194,8 @@
   "parsley": {
     "nom_fr": "Persil",
     "nom_en": "Parsley",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Persil",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Parsley",
     "description": "Herbe fraîche incontournable en cuisine.",
     "usages": ["salades", "sauces", "garnitures"],
     "arome": "frais, herbacé",
@@ -172,6 +206,8 @@
   "rosemary": {
     "nom_fr": "Romarin",
     "nom_en": "Rosemary",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Romarin",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Rosemary",
     "description": "Herbe boisée très parfumée.",
     "usages": ["viandes", "grillades", "pains"],
     "arome": "résineux, camphré",
@@ -182,6 +218,8 @@
   "sage": {
     "nom_fr": "Sauge",
     "nom_en": "Sage",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Sauge",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Sage",
     "description": "Herbe aromatique puissante, utilisée en cuisine et en herboristerie.",
     "usages": ["viandes", "farces", "infusions"],
     "arome": "boisé, légèrement amer",
@@ -192,6 +230,8 @@
   "savory": {
     "nom_fr": "Sarriette",
     "nom_en": "Savory",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Sarriette",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Savory_(herb)",
     "description": "Herbe poivrée très utilisée dans les plats mijotés.",
     "usages": ["légumineuses", "plats mijotés"],
     "arome": "poivré, herbacé",
@@ -202,6 +242,8 @@
   "tarragon": {
     "nom_fr": "Estragon",
     "nom_en": "Tarragon",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Estragon",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Tarragon",
     "description": "Herbe fine au goût anisé, très utilisée en cuisine française.",
     "usages": ["sauces", "volailles"],
     "arome": "anisé, doux",
@@ -212,6 +254,8 @@
   "thyme": {
     "nom_fr": "Thym",
     "nom_en": "Thyme",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Thym",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Thyme",
     "description": "Herbe méditerranéenne incontournable.",
     "usages": ["viandes", "bouillons", "infusions"],
     "arome": "boisé, résineux",
@@ -222,6 +266,8 @@
   "wintergreen": {
     "nom_fr": "Gaulthérie",
     "nom_en": "Wintergreen",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Gaulth%C3%A9rie",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Wintergreen",
     "description": "Plante très aromatique utilisée en huiles essentielles.",
     "usages": ["aromathérapie"],
     "arome": "mentholé, médicinal",

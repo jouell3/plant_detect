@@ -103,7 +103,9 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
     fiche = FICHES.get(top3[0]["species"].lower())
     if fiche:
         st.divider()
-        st.subheader(f"À propos — {fiche['nom_fr']} (*{fiche['nom_en']}*)")
+        nom_fr_md = f"[{fiche['nom_fr']}]({fiche['wikipedia_fr']})" if fiche.get("wikipedia_fr") else fiche['nom_fr']
+        nom_en_md = f"[{fiche['nom_en']}]({fiche['wikipedia_en']})" if fiche.get("wikipedia_en") else fiche['nom_en']
+        st.markdown(f"### À propos — {nom_fr_md} (*{nom_en_md}*)")
         st.markdown(fiche["description"])
 
         info_col1, info_col2 = st.columns(2)
