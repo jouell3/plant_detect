@@ -1,18 +1,16 @@
-import io
+import os
 
+import requests
 import streamlit as st
-
-from herbs_detection.model import load_model, predict_top3
-from herbs_detection.model_sklearn import predict_top3 as predict_top3_sklearn, load_model as load_model_sklearn
-
-load_model()  # Load the model at startup
-load_model_sklearn()
+from loguru import logger
 
 st.set_page_config(page_title="Batch Predict", layout="wide")
 
+API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
+
 GRID_COLS = 5
 GRID_ROWS = 5
-PAGE_SIZE = GRID_COLS * GRID_ROWS  # 100
+PAGE_SIZE = GRID_COLS * GRID_ROWS  # 25
 
 
 # ---------------------------------------------------------------------------
@@ -20,13 +18,16 @@ PAGE_SIZE = GRID_COLS * GRID_ROWS  # 100
 # ---------------------------------------------------------------------------
 
 @st.cache_data(show_spinner=False)
-def cached_predict_top3(img_bytes: bytes) -> list[tuple[str, float]]:
-    return predict_top3(io.BytesIO(img_bytes))
-
-
-@st.cache_data(show_spinner=False)
-def cached_predict_top3_sklearn(img_bytes: bytes) -> list[tuple[str, float]]:
-    return predict_top3_sklearn(io.BytesIO(img_bytes))
+def cached_predict_top3(img_bytes: bytes, filename: str) -> dict:
+    """Call /predict_herb and return the full response dict {model: [top3]}."""
+    logger.info("predict_herb | file={}", filename)
+    response = requests.post(
+        f"{API_URL}/predict_herb",
+        files={"file": (filename, img_bytes, "image/jpeg")},
+        timeout=60,
+    )
+    response.raise_for_status()
+    return response.json()
 
 
 # ---------------------------------------------------------------------------
@@ -69,8 +70,7 @@ if load_clicked:
         ]
         st.session_state.predict_page = 0
         st.session_state.predict_uploader_key += 1  # reset uploader on next render
-        cached_predict_top3.clear()
-        cached_predict_top3_sklearn.clear()
+        cached_predict_top3.clear()  # clear cached predictions when new images are loaded
         st.success(f"Loaded {len(st.session_state.predict_image_files)} images.")
 
 if not st.session_state.predict_image_files:
@@ -97,35 +97,24 @@ for row in range(GRID_ROWS):
             st.caption(file["name"])
 
             with st.spinner(""):
-                preds = cached_predict_top3(file["bytes"])
-                preds_sklearn = cached_predict_top3_sklearn(file["bytes"])
+                try:
+                    data = cached_predict_top3(file["bytes"], file["name"])
+                except Exception as e:
+                    st.error(f"API error: {e}")
+                    continue
 
-            st.markdown("Pytorch model predictions:", unsafe_allow_html=True)
-            for rank, (species, conf) in enumerate(preds, 1):
-                bar_color = "#2e7d32" if rank == 1 else "#555"
-                st.markdown(
-                    f"""
-                    <div style="display:flex; justify-content:space-between;
-                                font-size:0.78rem; margin-bottom:2px;">
-                        <span>{rank}. {species}</span>
-                        <span style="color:{bar_color}; font-weight:bold;">{conf:.1%}</span>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-            st.markdown("Sklearn model predictions:", unsafe_allow_html=True)
-            for rank, (species, conf) in enumerate(preds_sklearn, 1):
-                bar_color = "#2e7d32" if rank == 1 else "#555"
-                st.markdown(
-                    f"""
-                    <div style="display:flex; justify-content:space-between;
-                                font-size:0.78rem; margin-bottom:2px;">
-                        <span>{rank}. {species}</span>
-                        <span style="color:{bar_color}; font-weight:bold;">{conf:.1%}</span>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
+            for model_key, top3 in data.items():
+                st.markdown(f"**{model_key.upper()}**", unsafe_allow_html=True)
+                for rank, pred in enumerate(top3, 1):
+                    bar_color = "#2e7d32" if rank == 1 else "#555"
+                    st.markdown(
+                        f"<div style='display:flex; justify-content:space-between;"
+                        f"font-size:0.78rem; margin-bottom:2px;'>"
+                        f"<span>{rank}. {pred['species']}</span>"
+                        f"<span style='color:{bar_color}; font-weight:bold;'>{pred['confidence']:.1%}</span>"
+                        f"</div>",
+                        unsafe_allow_html=True,
+                    )
 
 # ---------------------------------------------------------------------------
 # Pagination
