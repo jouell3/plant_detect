@@ -121,7 +121,7 @@ def load_model() -> None:
     _model.to(DEVICE)
     _model.eval()
     _ready.set()
-    logger.info("Model ready. device={} classes={}", DEVICE, num_classes)
+    logger.info("Model illness ready. device={} classes={}", DEVICE, num_classes)
 
 
 def _ensure_loaded() -> None:
