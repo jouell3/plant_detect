@@ -10,6 +10,7 @@ from ..src.herbs_detection.model import predict_top3 as pt_top3, predict_set as 
 from ..src.herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set, load_model as load_model_sklearn
 from ..src.herbs_detection.model_pytorch_large import predict_top3 as ptl_top3, predict_set as ptl_set, load_model as load_model_pytorch_large
 from ..src.herbs_detection.model_tensorflow import predict_top3 as tf_top3, predict_set as tf_set, load_model as load_model_tensorflow
+from ..src.herbs_detection.model_illness import predict_top3 as illness_top3, load_model as load_model_illness
 
 
 from loguru import logger
@@ -23,6 +24,7 @@ async def lifespan(app: FastAPI):
     threading.Thread(target=load_model_sklearn, daemon=True).start()
     threading.Thread(target=load_model_pytorch_large, daemon=True).start()
     threading.Thread(target=load_model_tensorflow, daemon=True).start()
+    threading.Thread(target=load_model_illness, daemon=True).start()
     yield
     logger.info("Shutting down.")
 
@@ -60,6 +62,25 @@ async def predict_endpoint(file: UploadFile):
         "pytorch_large": [{"species": s, "confidence": c} for s, c in pytorch_large_preds],
         "tensorflow": [{"species": s, "confidence": c} for s, c in tensorflow_preds],
     }
+
+@api.post("/predict_illness")
+async def predict_illness_endpoint(file: UploadFile):
+    """Predict illness for a single uploaded image.
+    Returns top-3 predictions from the PyTorch illness model.
+    """
+    logger.info("predict_illness | file={}", file.filename)
+    suffix = Path(file.filename).suffix
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        tmp.write(await file.read())
+        tmp_path = tmp.name
+
+    pytorch_preds = illness_top3(tmp_path)
+    Path(tmp_path).unlink()
+
+    return {
+        "pytorch": [{"illness": s, "confidence": c} for s, c in pytorch_preds]
+    }
+
 
 @api.post("/predict-set")
 async def predict_set_endpoint(files: list[UploadFile]):

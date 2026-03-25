@@ -12,8 +12,8 @@ from torchvision import models, transforms
 # ---------------------------------------------------------------------------
 # GCS download helper
 # ---------------------------------------------------------------------------
-_GCS_BUCKET   = os.getenv("GCS_BUCKET_NAME", "")
-_GCS_PREFIX   = os.getenv("GCS_MODELS_PREFIX", "models").rstrip("/")
+_GCS_BUCKET   = os.getenv("GCS_BUCKET_NAME", "plant-detect-models")
+_GCS_PREFIX   = os.getenv("GCS_MODELS_ILLNESS_PREFIX", "models_illness").rstrip("/")
 _GCS_PROJECT  = os.getenv("GCS_PROJECT", "bootcamparomatic")
 _MODEL_FILES  = ["resnet18_plants_illness.pt", "label_encoder_illness.pkl"]
 
@@ -42,15 +42,15 @@ def _resolve_model_dir() -> Path:
     """Return a local directory that contains both model files.
 
     Resolution order:
-    1. Try to download fresh files from GCS into MODEL_PATH (or /tmp/plant_models).
+    1. Try to download fresh files from GCS into MODEL_ILLNESS_PATH (or /models_illness/gcp_download).
     2. If GCS download fails (no bucket configured, network error, etc.),
        fall back to the first local directory that already has both files:
-         - MODEL_PATH env var
-         - backend/app/models/ relative to the source tree
+         - MODEL_ILLNESS_PATH env var
+         - models_illness/ relative to the source tree
     """
     # ── 1. Try GCS first ─────────────────────────────────────────────────
     if _GCS_BUCKET:
-        gcs_dest = Path(os.getenv("MODEL_PATH", "models/gcp_download"))
+        gcs_dest = Path(os.getenv("MODEL_ILLNESS_PATH", "models_illness/gcp_download"))
         try:
             _download_from_gcs(gcs_dest)
             return gcs_dest
@@ -60,7 +60,7 @@ def _resolve_model_dir() -> Path:
     # ── 2. Fallback: use pre-existing local files ─────────────────────────
     fallback_candidates: list[Path] = []
 
-    env_path = os.getenv("MODEL_PATH")
+    env_path = os.getenv("MODEL_ILLNESS_PATH")
     if env_path:
         fallback_candidates.append(Path(env_path))
 
@@ -77,7 +77,7 @@ def _resolve_model_dir() -> Path:
     raise FileNotFoundError(
         "GCS download failed and no local model files were found. "
         "Set GCS_BUCKET_NAME or place resnet18_plants_illness.pt + label_encoder_illness.pkl "
-        "in backend/app/model_illness/."
+        "in backend/app/models_illness/."
     )
 
 IMG_SIZE = 256
