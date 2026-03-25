@@ -9,8 +9,7 @@ import streamlit as st
 from loguru import logger
 
 # Local imports for styling and validation
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from styles import COLORS, confidence_color
 from utils import validate_images_batch, show_validation_errors, show_validation_summary
 

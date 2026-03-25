@@ -5,8 +5,6 @@ from pathlib import Path
 import streamlit as st
 
 # Local imports for validation
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils import validate_images_batch, show_validation_errors, show_validation_summary
 
 st.set_page_config(page_title="Label Images", layout="wide")

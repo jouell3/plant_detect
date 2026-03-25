@@ -11,9 +11,6 @@ import streamlit as st
 from loguru import logger
 from PIL import Image
 
-# Local imports for styling and validation
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from styles import COLORS, confidence_color, confidence_badge, styled_info_card, page_header
 from utils import validate_image_file
 
@@ -42,6 +39,8 @@ if "suggestions_visible_count" not in st.session_state:
     st.session_state.suggestions_visible_count = 0
 if "suggestions_species_key" not in st.session_state:
     st.session_state.suggestions_species_key = ""
+if "last_uploaded_id" not in st.session_state:
+    st.session_state.last_uploaded_id = None
 
 
 def _normalize_species_key(value: str) -> str:
@@ -139,6 +138,12 @@ with tab_camera:
 if not uploaded_file:
     st.stop()
 
+# Clear previous prediction when a new file is selected
+_file_id = (uploaded_file.name, uploaded_file.size)
+if _file_id != st.session_state.last_uploaded_id:
+    st.session_state.last_prediction = None
+    st.session_state.last_uploaded_id = _file_id
+
 # Validate uploaded image before proceeding
 is_valid, error_msg = validate_image_file(uploaded_file)
 if not is_valid:
@@ -211,11 +216,11 @@ if prediction:
 
     # ── Display ───────────────────────────────────────────────────────────
     st.subheader("Résultats")
-    col_img, col_fiche = st.columns([1, 3])
+    col_img, col_fiche= st.columns([ 1, 3], vertical_alignment="bottom", gap="large")
 
     with col_img:
         img = Image.open(io.BytesIO(prediction["uploaded_bytes"]))
-        st.image(img, width=450, caption=prediction["uploaded_name"])
+        st.image(img, use_column_width=True, caption=prediction["uploaded_name"])
 
     with col_fiche:
     # ── Herb info card ─────────────────────────────────────────────────────

@@ -72,7 +72,7 @@ def _resolve_sklearn_dir() -> Path:
     # ── 2. Fallback: use pre-existing local files ─────────────────────────
     candidates = []
 
-    env_path = os.getenv("MODEL_SKLEARN_PATH")
+    env_path = os.getenv("MODEL_PATH")
     if env_path:
         p = Path(env_path)
         candidates.append(p.parent if p.suffix == ".json" else p)
