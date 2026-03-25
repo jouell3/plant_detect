@@ -82,7 +82,7 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
 
     with col_img:
         img = Image.open(io.BytesIO(uploaded_file.getvalue()))
-        st.image(img, use_column_width=True, caption=uploaded_file.name)
+        st.image(img, width=None, caption=uploaded_file.name)
 
     with col_grid:
         models_list = list(models_used)

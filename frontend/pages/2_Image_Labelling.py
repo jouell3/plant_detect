@@ -1,7 +1,13 @@
 import csv
 import io
+from pathlib import Path
 
 import streamlit as st
+
+# Local imports for validation
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from utils import validate_images_batch, show_validation_errors, show_validation_summary
 
 st.set_page_config(page_title="Label Images", layout="wide")
 
@@ -115,20 +121,28 @@ with col_btn:
 
 if load_clicked:
     if not uploaded_images:
-        st.error("Please upload at least one image.")
+        st.error("Veuillez uploader au moins une image.")
     else:
-        # Read bytes into session state so they survive reruns
-        st.session_state.label_image_files = [
-            {"name": f.name, "bytes": f.read()} for f in uploaded_images
-        ]
-        st.session_state.label_page = 0
-        st.session_state.label_uploader_key += 1  # reset uploaders on next render
-        if uploaded_labels is not None:
-            st.session_state.labels = load_labels_from_upload(uploaded_labels)
-            st.success(f"Loaded {len(st.session_state.label_image_files)} images and labels from {uploaded_labels.name}.")
+        # Validate images before processing
+        valid_files, invalid_files = validate_images_batch(uploaded_images)
+        
+        # Show validation results
+        show_validation_summary(len(valid_files), len(uploaded_images))
+        show_validation_errors(invalid_files)
+        
+        if valid_files:
+            # Read bytes into session state so they survive reruns
+            st.session_state.label_image_files = [
+                {"name": f.name, "bytes": f.read()} for f in valid_files
+            ]
+            st.session_state.label_page = 0
+            st.session_state.label_uploader_key += 1  # reset uploaders on next render
+            if uploaded_labels is not None:
+                st.session_state.labels = load_labels_from_upload(uploaded_labels)
+            else:
+                st.session_state.labels = {}
         else:
-            st.session_state.labels = {}
-            st.success(f"Loaded {len(st.session_state.label_image_files)} images.")
+            st.session_state.label_image_files = []
 
 # ---------------------------------------------------------------------------
 # Grid
@@ -152,7 +166,7 @@ for row in range(GRID_ROWS):
         label = st.session_state.labels.get(key, "not_selected")
 
         with cols[col_idx]:
-            st.image(file["bytes"], width=250, caption=file["name"])
+            st.image(file["bytes"], width=None, caption=file["name"])
 
             is_good = label == "good"
             btn_label = "✅ Good" if is_good else "○ Keep?"
@@ -180,12 +194,22 @@ with p_left:
 
 with p_mid:
     end_img = min(start + PAGE_SIZE, len(st.session_state.label_image_files))
-    st.markdown(
-        f"<p style='text-align:center; padding-top:8px;'>"
-        f"Page {page + 1} / {total_pages} &nbsp;·&nbsp; images {start + 1}–{end_img}"
-        f"</p>",
-        unsafe_allow_html=True,
+    st.metric(
+        label="Progression",
+        value=f"Page {page + 1} / {total_pages}",
+        delta=f"images {start + 1}-{end_img}",
     )
+    target_page = st.number_input(
+        "Aller à la page",
+        min_value=1,
+        max_value=total_pages,
+        value=page + 1,
+        step=1,
+        key="label_jump_page",
+    )
+    if target_page != page + 1:
+        st.session_state.label_page = int(target_page) - 1
+        st.rerun()
 
 with p_right:
     if st.button("Next →", disabled=(page >= total_pages - 1), use_container_width=True):

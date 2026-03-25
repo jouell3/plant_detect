@@ -44,7 +44,7 @@ L'API est hébergée sur **Google Cloud Run** et les prédictions sont renvoyée
 
 ---
 
-### 🏷️ Sélection d'Images
+### 🏷️ Sélection d'Images (Image labelling)
 
 Accède à cet onglet pour :
 - **Parcourir toutes les images** d'un dossier contenant des photos d'herbes aromatiques
@@ -53,7 +53,7 @@ Accède à cet onglet pour :
 
 Le nom des images sélectionnées seront sauvegardés dans un fichier CSV réutilisable pour entraîner ou ré-entraîner le modèle.
 
-### 📊 Prédiction par lot
+### 📊 Prédiction par lot (Multiple predictions)
 
 Accède à cet onglet pour :
 - **Télécharger plusieurs images** à la fois
@@ -68,5 +68,5 @@ st.caption("""• Modèle : ResNet18 et EfficientNet B3
            • Stockage : Google Cloud Storage    
            • Dataset : 24000+ images d'herbes aromatiques réelles (iNaturalist)     
            • Auteur : Jimmy OUELLET, Jaimes DE SOUSA GOMES, Thoams HEBERT, Edouard STEINER    
-           • Code source : [GitHub](https://
+           • Code source : [GitHub](https://github.com/jimmyouellet/plant-detect)
            """)

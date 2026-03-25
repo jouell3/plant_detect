@@ -1,6 +1,7 @@
 # Models
 models/
 models_sklearn/
+models_illness/
 model_pytorch_l/
 model_tf/
 !models/.gitkeep
@@ -20,6 +21,7 @@ mlflow-artifacts
 mlruns
 mlflow.db
 !frontend/fiches.json
+!frontend/suggestions.json
 
 # python
 */__pycache__/
