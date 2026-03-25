@@ -2,6 +2,7 @@ import os
 import pickle
 import threading
 from pathlib import Path
+import streamlit as st
 
 import torch
 from loguru import logger
@@ -14,7 +15,7 @@ from torchvision import models, transforms
 _GCS_BUCKET   = os.getenv("GCS_BUCKET_NAME", "")
 _GCS_PREFIX   = os.getenv("GCS_MODELS_PREFIX", "models").rstrip("/")
 _GCS_PROJECT  = os.getenv("GCS_PROJECT", "bootcamparomatic")
-_MODEL_FILES  = ["resnet18_plants.pt", "label_encoder.pkl"]
+_MODEL_FILES  = ["resnet18_plants_illness.pt", "label_encoder_illness.pkl"]
 
 
 def _download_from_gcs(local_dir: Path) -> None:
@@ -48,15 +49,14 @@ def _resolve_model_dir() -> Path:
          - backend/app/models/ relative to the source tree
     """
     # ── 1. Try GCS first ─────────────────────────────────────────────────
-    logger.info("Resolving model directory...")
-    logger.info("_GCS_BUCKET = '{}'", _GCS_BUCKET)
     if _GCS_BUCKET:
-        gcs_dest = Path.cwd() / "models/gcp_download"
+        gcs_dest = Path(os.getenv("MODEL_PATH", "models/gcp_download"))
         try:
             _download_from_gcs(gcs_dest)
             return gcs_dest
         except Exception as exc:
             logger.warning("GCS download failed ({}), falling back to local files.", exc)
+
     # ── 2. Fallback: use pre-existing local files ─────────────────────────
     fallback_candidates: list[Path] = []
 
@@ -65,10 +65,10 @@ def _resolve_model_dir() -> Path:
         fallback_candidates.append(Path(env_path))
 
     here = Path(__file__).resolve()
-    fallback_candidates.append(here.parents[2] / "models")      # backend/app/models
-    fallback_candidates.append(Path.cwd() / "backend/app/models")
-    fallback_candidates.append(Path.cwd() / "app/models")
-    
+    fallback_candidates.append(here.parents[2] / "models_illness")      # backend/app/models_illness
+    fallback_candidates.append(Path.cwd() / "backend/app/models_illness")
+    fallback_candidates.append(Path.cwd() / "app/models_illness")
+
     for p in fallback_candidates:
         if p.is_dir() and all((p / f).exists() for f in _MODEL_FILES):
             logger.info("Using local model files from {}", p)
@@ -76,11 +76,12 @@ def _resolve_model_dir() -> Path:
 
     raise FileNotFoundError(
         "GCS download failed and no local model files were found. "
-        "Set GCS_BUCKET_NAME or place resnet18_plants.pt + label_encoder.pkl"
-        "in backend/app/models/."
+        "Set GCS_BUCKET_NAME or place resnet18_plants_illness.pt + label_encoder_illness.pkl "
+        "in backend/app/model_illness/."
     )
 
-IMG_SIZE = 224
+IMG_SIZE = 256
+# IMG_SIZE = 224
 DEVICE   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 _preprocess = transforms.Compose([
@@ -107,8 +108,8 @@ def load_model() -> None:
     global _le, _model
 
     model_dir     = _resolve_model_dir()
-    weights_path  = model_dir / "resnet18_plants.pt"
-    encoder_path  = model_dir / "label_encoder.pkl"
+    weights_path  = model_dir / "resnet18_plants_illness.pt"
+    encoder_path  = model_dir / "label_encoder_illness.pkl"
 
     with open(encoder_path, "rb") as f:
         _le = pickle.load(f)

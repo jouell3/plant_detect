@@ -1,6 +1,6 @@
 loguru==0.7.2
 
-streamlit==1.25.0
+streamlit==1.55.0
 
 -e .
 

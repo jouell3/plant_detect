@@ -3,44 +3,70 @@ import streamlit as st
 st.set_page_config(page_title="Plant Detect", layout="centered")
 
 st.title("🌿 Plant Detect")
-st.markdown("### Identification et gestion d'herbes aromatiques par IA")
+st.markdown("### Identification d'herbes aromatiques par IA")
 
 st.divider()
 
 st.markdown("""
 Bienvenue sur **Plant Detect**, une application de reconnaissance d'herbes aromatiques
-basée sur un modèle de deep learning (ResNet18) entraîné sur des images réelles.
+basée sur des modèles de deep learning (ResNet18 et EfficientNet) entraîné sur des images réelles.
 
 ---
 
 ### 📌 Que fait cette application ?
 
-L'application permet d'identifier automatiquement une herbe aromatique à partir d'une photo,
-et de gérer les données d'entraînement du modèle.
+Cette application permet d'identifier une herbe aromatique à partir d'une simple photo prise avec la caméra du téléphone 
+ou téléchargée depuis un dossier. 
+\n Elle te donne une prédiction en temps réel avec un score de confiance, et affiche le top 3 des espèces les plus probables pour différents modèles.
+
 
 ---
+
+Voici une petite description des différentes pages de l'application :
 
 ### 🔍 Prédiction
 
 Accède à cet onglet pour :
-- **Uploader une ou plusieurs images** de plantes
-- **Prendre une photo** directement depuis ta caméra
-- Obtenir une **identification automatique** de l'espèce avec un score de confiance
-- Voir le **top 3** des espèces les plus probables
+- **Télécharger une images** de plantes aromatiques depuis un dossier
+- **Prendre une photo** directement depuis la caméra du téléphone
+Ceci te permettra d'obtenir une **identification automatique** de l'espèce avec un score de confiance
+Pour plus d'informations, le **top 3** des espèces les plus probables prédit par le modèle est également affiché.
 
-Le modèle est hébergé sur **Google Cloud Run** et les prédictions sont renvoyées en temps réel.
+
+\n Les différents modèles de reconnaissance d'herbes aromatiques ont été entraînés sur un dataset de 24000+ images réelles d'herbes aromatiques courantes prises dans des conditions variées (lumière, angles, arrière-plans).
+
+##### Voici la liste complète des espèces reconnues par le modèle :
+
+Angélique, Basilic, Bourrache, Camomille, Ciboulette, Coriandre, Aneth, Fenouil, Hysope, Lavande, Citronnelle, Verveine citronnée, Livèche, Menthe, Armoise, Origan, Persil, Romarin, Sauge, Sarriette, Estragon, Thym, Gaulthérie
+
+\n Les images ont été obtenues via une API du site iNaturalist, qui regroupe des photos de plantes du monde entier avec des métadonnées de localisation et d'espèce.    
+L'API est hébergée sur **Google Cloud Run** et les prédictions sont renvoyées en temps réel.
 
 ---
 
-### 🏷️ Entraînement
+### 🏷️ Sélection d'Images (Image labelling)
 
 Accède à cet onglet pour :
-- **Parcourir les images** de ton dataset par dossier
-- **Labelliser** chaque image (bonne qualité ou non) avant l'entraînement
+- **Parcourir toutes les images** d'un dossier contenant des photos d'herbes aromatiques
+- **Sélectionner** les différentes images (bonne qualité ou non) qui serviront à l'entraînement
 - **Naviguer** par pages dans ton jeu de données
 
-Les labels sont sauvegardés dans un fichier CSV réutilisable pour entraîner ou ré-entraîner le modèle.
+Le nom des images sélectionnées seront sauvegardés dans un fichier CSV réutilisable pour entraîner ou ré-entraîner le modèle.
+
+### 📊 Prédiction par lot (Multiple predictions)
+
+Accède à cet onglet pour :
+- **Télécharger plusieurs images** à la fois
+- **Visualiser les prédictions** obtenues à partir de différents modèles : 
+    - un modèle PyTorch (ResNet18) 
+    - un modèle Sklearn utilisant des features extraites d'un backbone EfficientNet B3 de 1536 dimensions.
 """)
 
 st.divider()
-st.caption("Modèle : ResNet18 • Déploiement : Google Cloud Run • Stockage : Google Cloud Storage")
+st.caption("""• Modèle : ResNet18 et EfficientNet B3  
+           • Déploiement : Google Cloud Run  
+           • Stockage : Google Cloud Storage    
+           • Dataset : 24000+ images d'herbes aromatiques réelles (iNaturalist)     
+           • Auteur : Jimmy OUELLET, Jaimes DE SOUSA GOMES, Thoams HEBERT, Edouard STEINER    
+           • Code source : [GitHub](https://github.com/jimmyouellet/plant-detect)
+           """)
