@@ -211,7 +211,7 @@ if prediction:
             
 
             info_dict = {
-                "🦠 Agent causatif": fiche['cause'],
+                "🦠 Cause possible": fiche['cause'],
                 "🩺 Traitement curatif": fiche['traitement_curatif'],
                 "💊 Traitement préventif": fiche['traitement_preventif'],
                 "🛡️ Saison / Gravité": fiche['saison_gravite'],
