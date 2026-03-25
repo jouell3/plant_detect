@@ -1,0 +1,13 @@
+{
+  "Apple_Cedar_apple_rust": {
+    "nom_fr": "Rouille du pommier",
+    "nom_en": "Cedar‑apple rust",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Rouille_du_pommier",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Cedar‑apple_rust",
+    "description": "- Maladie fongique provoquant des taches orange vif sur les feuilles de pommier \n - Cycle de vie complexe impliquant un hôte secondaire (genévrier)",
+    "agent": "Gymnosporangium juniperi‑virginianae",
+    "symptomes": "- Taches orange vif sur les feuilles de pommier  \n - Taches jaunes sur les feuilles de genévrier",
+    "traitement": "- Enlever les feuilles infectées  \n - Utiliser des fongicides à base de cuivre ou de soufre  \n - Planter des variétés de pommiers résistantes",
+    "prevention": "- Éviter de planter des pommiers à proximité de genévriers  \n - Éliminer les feuilles mortes et les branches infectées  \n - Utiliser des fongicides préventifs au début du printemps"
+  }
+}

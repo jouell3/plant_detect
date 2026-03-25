@@ -21,6 +21,7 @@ mlflow-artifacts
 mlruns
 mlflow.db
 !frontend/fiches.json
+!frontend/fiches_ill.json
 !frontend/suggestions.json
 
 # python
