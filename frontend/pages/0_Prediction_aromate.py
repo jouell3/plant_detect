@@ -176,14 +176,24 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
     data = response.json()  # {model: [{species, confidence}, ...]}
     models_used = list(data.keys())
     first_model = models_used[0]
-    top_species = data[first_model][0]["species"]
-    top_confidence = data[first_model][0]["confidence"]
+    top_species = []
+    mean_confidence = []
+    good_models = []
+    for key in models_used:
+        top_species.append(data[key][0]["species"])
+    top_species = max(set(top_species), key=top_species.count)  # Most common top species among models
+    other_species = [s for s in top_species if s != top_species]
+    for key in models_used:
+        if data[key][0]["species"] == top_species:
+            mean_confidence.append(data[key][0]["confidence"])
+            good_models.append(key)
+    mean_confidence = sum(mean_confidence) / len(mean_confidence) if mean_confidence else 0.0
 
     st.session_state.last_prediction = {
         "data": data,
         "models_used": models_used,
         "top_species": top_species,
-        "top_confidence": top_confidence,
+        "mean_confidence": mean_confidence,
         "uploaded_name": uploaded_file.name,
         "uploaded_bytes": file_bytes,
     }
@@ -200,7 +210,7 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
     st.session_state.prediction_history.append({
         "name": uploaded_file.name,
         "species": top_species,
-        "confidence": top_confidence,
+        "confidence": mean_confidence,
         "thumb_bytes": uploaded_file.getvalue(),
         "timestamp": datetime.now().strftime("%H:%M:%S"),
     })
@@ -212,21 +222,29 @@ if prediction:
     data = prediction["data"]
     models_used = prediction["models_used"]
     top_species = prediction["top_species"]
-    top_confidence = prediction["top_confidence"]
+    mean_confidence = prediction["mean_confidence"]
+    top_species_fr = FICHES.get(_normalize_species_key(top_species), {}).get("nom_fr", top_species)
 
     # ── Display ───────────────────────────────────────────────────────────
     st.subheader("Résultats")
+    herb_found = [data[key][0]["species"] for key in models_used]
+    
+    if len(set(herb_found)) == 2:
+        st.warning("Au moins un des modèles n'est pas d'accord sur la prédiction mais voici quand même la predictions obtenue pour les 3 autres modèles. Vous pouvez voir les détails de chaque prédiction en bas de page.  \n Essayez avec une autre image ou prenez la photo dans de meilleures conditions d'éclairage ou d'angle.")
+    if len(set(herb_found)) <= 2:
+        st.markdown(f"##### Le modèle a prédit {top_species_fr.lower()} avec une confiance moyenne de {mean_confidence:.0%} sur les {len(good_models)} modèles suivants: {', '.join(good_models)}.")
+    
     col_img, col_fiche= st.columns([ 1, 3], vertical_alignment="bottom", gap="large")
 
     with col_img:
         img = Image.open(io.BytesIO(prediction["uploaded_bytes"]))
-        st.image(img, use_column_width=True, caption=prediction["uploaded_name"])
+        st.image(img, width="stretch", caption=prediction["uploaded_name"])
 
     with col_fiche:
     # ── Herb info card ─────────────────────────────────────────────────────
-        herb_found = [data[key][0]["species"] for key in models_used]
+        #herb_found = [data[key][0]["species"] for key in models_used]
         
-        if len(set(herb_found)) == 1:  # If both models agree on the same herb, show the info card
+        if len(set(herb_found)) <= 2:  # If at least 3 models out of the 4 agree on the same herb, show the info card
             fiche = FICHES.get(_normalize_species_key(top_species))
             st.divider()
             if fiche:
@@ -249,13 +267,13 @@ if prediction:
                 wiki_search = f"https://fr.wikipedia.org/wiki/Special:Search?search={top_species.replace(' ', '+')}"
                 st.markdown(f"[Rechercher sur Wikipedia]({wiki_search})")
 
-        if len(set(herb_found)) != 1:
+        if len(set(herb_found)) > 2:
             st.warning(f"Les {len(list(models_used))} modèles ne sont pas d'accord sur la prédiction. Veuillez essayer avec une autre image ou prendre la photo dans de meilleures conditions d'éclairage ou d'angle.")
-        elif top_confidence < 0.50:
+        elif mean_confidence < 0.50:
             st.info("Confiance faible: essayez une photo plus nette, une meilleure lumière et un cadrage plus serré sur la plante.")
     
     # ── Suggestions grid section ──────────────────────────────────────────────
-    if len(set(herb_found)) == 1:
+    if len(set(herb_found)) <= 2:
         species_key = _normalize_species_key(top_species)
         if st.session_state.suggestions_species_key == species_key and st.session_state.suggestions_pool:
             max_display = min(12, len(st.session_state.suggestions_pool))
