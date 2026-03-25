@@ -24,7 +24,7 @@ ou téléchargée depuis un dossier.
 
 Voici une petite description des différentes pages de l'application :
 
-### 🔍 Prédiction
+### 🔍 Prédiction d'herbes aromatiques
 
 Accède à cet onglet pour :
 - **Télécharger une images** de plantes aromatiques depuis un dossier

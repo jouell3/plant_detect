@@ -191,7 +191,7 @@ if prediction:
 
     # ── Display ───────────────────────────────────────────────────────────
     st.subheader("Résultats")
-    _, col_img, col_fiche, _ = st.columns([0.2, 1, 3, 0.2], gap="large", vertical_alignment="center")
+    _, col_img, col_fiche, _ = st.columns([0.2, 1, 3, 0.2], gap="large", vertical_alignment="bottom")
 
     with col_img:
         img = Image.open(io.BytesIO(prediction["uploaded_bytes"]))
@@ -205,16 +205,16 @@ if prediction:
         #fiche = FICHES.get(_normalize_species_key(top_illness))
         st.divider()
         if fiche:
-            nom_fr_md = f"[{fiche['nom_fr']}]({fiche['wikipedia_fr']})" if fiche.get("wikipedia_fr") else fiche['nom_fr']
+            nom_fr_md = f"[{fiche['nom_maladie_fr']}]({fiche['wikipedia_fr']})" if fiche.get("wikipedia_fr") else fiche['nom_maladie_fr']
             nom_en_md = f"[{fiche['nom_en']}]({fiche['wikipedia_en']})" if fiche.get("wikipedia_en") else fiche['nom_en']
             st.markdown(f"### À propos — {nom_fr_md} (*{nom_en_md}*)")
-            st.markdown(fiche["description"])
+            
 
             info_dict = {
-                "🦠 Agent causatif": fiche['agent'],
-                "🩺 Symptômes": fiche['symptomes'],
-                "💊 Traitement": fiche['traitement'],
-                "🛡️ Prévention": fiche['prevention'],
+                "🦠 Agent causatif": fiche['cause'],
+                "🩺 Traitement curatif": fiche['traitement_curatif'],
+                "💊 Traitement préventif": fiche['traitement_preventif'],
+                "🛡️ Saison / Gravité": fiche['saison_gravite'],
             }
             styled_info_card("Plus d'informations", info_dict)
         else:
