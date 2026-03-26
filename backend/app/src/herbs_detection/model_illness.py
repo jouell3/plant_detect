@@ -47,9 +47,13 @@ def _resolve_model_dir() -> Path:
          - MODEL_ILLNESS_PATH env var
          - models_illness/ relative to the source tree
     """
+    from .gcs_cache import is_cache_valid
+
     # ── 1. Try GCS first ─────────────────────────────────────────────────
     if _GCS_BUCKET:
         gcs_dest = Path(os.getenv("MODEL_ILLNESS_PATH", "models_illness/gcp_download"))
+        if is_cache_valid(gcs_dest, _MODEL_FILES):
+            return gcs_dest
         try:
             _download_from_gcs(gcs_dest)
             return gcs_dest

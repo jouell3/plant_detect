@@ -59,10 +59,15 @@ def _download_from_gcs_sklearn(local_dir: Path) -> None:
 # Paths
 # ---------------------------------------------------------------------------
 def _resolve_sklearn_dir() -> Path:
+    from .gcs_cache import is_cache_valid_by_patterns
+
     # ── 1. Try GCS first ─────────────────────────────────────────────────
     logger.info("Resolving sklearn model directory...")
     if _GCS_BUCKET:
         gcs_dest = Path.cwd() / "models_sklearn/gcp_download"
+        _cache_patterns = [f"{p}*" for p in _SKLEARN_BLOB_PATTERNS]
+        if is_cache_valid_by_patterns(gcs_dest, _cache_patterns):
+            return gcs_dest
         try:
             _download_from_gcs_sklearn(gcs_dest)
             return gcs_dest
