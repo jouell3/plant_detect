@@ -14,7 +14,9 @@ from PIL import Image
 from styles import COLORS, confidence_color, confidence_badge, styled_info_card, page_header
 from utils import validate_image_file
 
-API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
+#API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
+#API_URL = "http://localhost:8080"
+API_URL = "https://herb-predictor-966041648100.europe-west1.run.app"
 MAX_HISTORY_ITEMS = 20
 RETRY_DELAYS_SECONDS = (0.8, 1.6)
 
