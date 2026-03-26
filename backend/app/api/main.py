@@ -6,12 +6,17 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile
 
-from ..src.herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set, load_model as load_model_pytorch
-from ..src.herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set, load_model as load_model_sklearn
-from ..src.herbs_detection.model_pytorch_large import predict_top3 as ptl_top3, predict_set as ptl_set, load_model as load_model_pytorch_large
-from ..src.herbs_detection.model_tensorflow import predict_top3 as tf_top3, predict_set as tf_set, load_model as load_model_tensorflow
-from ..src.herbs_detection.model_illness import predict_top3 as illness_top3, predict_set as illness_set, load_model as load_model_illness
+#from ..src.herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set, load_model as load_model_pytorch
+#from ..src.herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set, load_model as load_model_sklearn
+#from ..src.herbs_detection.model_pytorch_large import predict_top3 as ptl_top3, predict_set as ptl_set, load_model as load_model_pytorch_large
+#from ..src.herbs_detection.model_tensorflow import predict_top3 as tf_top3, predict_set as tf_set, load_model as load_model_tensorflow
+#from ..src.herbs_detection.model_illness import predict_top3 as illness_top3, predict_set as illness_set, load_model as load_model_illness
 
+from herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set, load_model as load_model_pytorch
+from herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set, load_model as load_model_sklearn
+from herbs_detection.model_pytorch_large import predict_top3 as ptl_top3, predict_set as ptl_set, load_model as load_model_pytorch_large
+from herbs_detection.model_tensorflow import predict_top3 as tf_top3, predict_set as tf_set, load_model as load_model_tensorflow
+from herbs_detection.model_illness import predict_top3 as illness_top3, predict_set as illness_set, load_model as load_model_illness
 
 from loguru import logger
 import uvicorn
@@ -41,8 +46,8 @@ def root():
 @api.post("/predict_herb")
 async def predict_endpoint(file: UploadFile):
     """Predict species for a single uploaded image.
-    Returns top-3 predictions from both the PyTorch (ResNet18) and
-    sklearn (EfficientNet-B3 + LogisticRegression) models for comparison.
+    Returns top-3 predictions from a PyTorch (ResNet18), sklearn (EfficientNet-B3 + LogisticRegression), 
+    pytorch_large (ResNet50), and tensorflow (InceptionV3) models for comparison.
     """
     logger.info("predict_herb | file={}", file.filename)
     suffix = Path(file.filename).suffix
@@ -85,7 +90,7 @@ async def predict_illness_endpoint(file: UploadFile):
 @api.post("/predict-set")
 async def predict_set_endpoint(files: list[UploadFile]):
     """Predict species for a batch of uploaded images.
-    Returns predictions from both models for each image.
+    Returns top1 prediction from all the models for each image.
     """
     logger.info("predict_set | {} files", len(files))
     tmp_paths, filenames = [], []

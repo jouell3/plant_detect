@@ -14,9 +14,7 @@ from torchvision import models, transforms
 # ---------------------------------------------------------------------------
 # GCS download helper
 # ---------------------------------------------------------------------------
-_GCS_BUCKET        = os.getenv("GCS_BUCKET_NAME", "")
-_GCS_SKLEARN_PREFIX = os.getenv("GCS_SKLEARN_PREFIX", "models_sklearn").rstrip("/")
-_GCS_PROJECT       = os.getenv("GCS_PROJECT", "bootcamparomatic")
+
 
 _SKLEARN_BLOB_PATTERNS = (
     "config_sklearn__",
@@ -25,57 +23,14 @@ _SKLEARN_BLOB_PATTERNS = (
 )
 
 
-def _download_from_gcs_sklearn(local_dir: Path) -> None:
-    from google.cloud import storage
-
-    logger.info("Downloading sklearn models from gs://{}/{}/", _GCS_BUCKET, _GCS_SKLEARN_PREFIX)
-    client = storage.Client(project=_GCS_PROJECT)
-    bucket = client.bucket(_GCS_BUCKET)
-
-    local_dir.mkdir(parents=True, exist_ok=True)
-
-    prefix = f"{_GCS_SKLEARN_PREFIX}/"
-    all_blobs = list(bucket.list_blobs(prefix=prefix))
-    matched = [
-        b for b in all_blobs
-        if any(Path(b.name).name.startswith(p) for p in _SKLEARN_BLOB_PATTERNS)
-    ]
-
-    if not matched:
-        raise FileNotFoundError(
-            f"No blobs matching patterns {_SKLEARN_BLOB_PATTERNS} found under gs://{_GCS_BUCKET}/{_GCS_SKLEARN_PREFIX}/"
-        )
-
-    for blob in matched:
-        filename = Path(blob.name).name
-        dest = local_dir / filename
-        logger.debug("  {} → {}", blob.name, dest)
-        blob.download_to_filename(str(dest))
-
-    logger.info("GCS sklearn download complete ({} files).", len(matched))
-
-
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 def _resolve_sklearn_dir() -> Path:
     # ── 1. Try GCS first ─────────────────────────────────────────────────
     logger.info("Resolving sklearn model directory...")
-    if _GCS_BUCKET:
-        gcs_dest = Path.cwd() / "models_sklearn/gcp_download"
-        try:
-            _download_from_gcs_sklearn(gcs_dest)
-            return gcs_dest
-        except Exception as exc:
-            logger.warning("GCS sklearn download failed ({}), falling back to local files.", exc)
 
-    # ── 2. Fallback: use pre-existing local files ─────────────────────────
     candidates = []
-
-    env_path = os.getenv("MODEL_PATH")
-    if env_path:
-        p = Path(env_path)
-        candidates.append(p.parent if p.suffix == ".json" else p)
 
     here = Path(__file__).resolve()
     candidates.append(here.parents[2] / "models_sklearn")
@@ -86,10 +41,6 @@ def _resolve_sklearn_dir() -> Path:
         if p.exists():
             return p
 
-    print("Searched for sklearn model files in the following locations:")
-    for c in candidates:
-        print(f"  - {c}")
-
     raise FileNotFoundError(
         "Could not find models_sklearn directory. "
         "Set MODEL_SKLEARN_PATH to the folder containing the sklearn model files."
@@ -97,12 +48,6 @@ def _resolve_sklearn_dir() -> Path:
 
 
 def _load_config(models_dir: Path) -> dict:
-    env_path = os.getenv("MODEL_SKLEARN_PATH")
-    if env_path:
-        p = Path(env_path)
-        if p.suffix == ".json" and p.is_file():
-            with open(p) as f:
-                return json.load(f)
 
     # Check for plain config_sklearn.json first (downloaded from GCS)
     plain = models_dir / "config_sklearn.json"

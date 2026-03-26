@@ -14,7 +14,9 @@ from PIL import Image
 from styles import COLORS, confidence_color, confidence_badge, styled_info_card, page_header
 from utils import validate_image_file
 
-API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
+#API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
+#API_URL = "http://localhost:8080"
+API_URL = "https://herb-predictor-966041648100.europe-west1.run.app"
 MAX_HISTORY_ITEMS = 20
 RETRY_DELAYS_SECONDS = (0.8, 1.6)
 
@@ -234,7 +236,7 @@ if prediction:
     if len(set(herb_found)) <= 2:
         st.markdown(f"##### Le modèle a prédit {top_species_fr.lower()} avec une confiance moyenne de {mean_confidence:.0%} sur les {len(good_models)} modèles suivants: {', '.join(good_models)}.")
     
-    col_img, col_fiche= st.columns([ 1, 3], vertical_alignment="bottom", gap="large")
+    col_img, col_fiche= st.columns([ 1, 3], vertical_alignment="center", gap="large")
 
     with col_img:
         img = Image.open(io.BytesIO(prediction["uploaded_bytes"]))

@@ -8,31 +8,8 @@ from loguru import logger
 from PIL import Image
 from torchvision import models, transforms
 
-# ---------------------------------------------------------------------------
-# GCS download helper
-# ---------------------------------------------------------------------------
-_GCS_BUCKET   = os.getenv("GCS_BUCKET_NAME", "plant-detect-models")
-_GCS_PREFIX   = os.getenv("GCS_MODELS_ILLNESS_PREFIX", "models_illness").rstrip("/")
-_GCS_PROJECT  = os.getenv("GCS_PROJECT", "bootcamparomatic")
+
 _MODEL_FILES  = ["resnet18_plants_illness.pt", "label_encoder_illness.pkl"]
-
-
-def _download_from_gcs(local_dir: Path) -> None:
-    """Download model files from GCS into local_dir."""
-    from google.cloud import storage  # lazy import — only needed when files are missing
-
-    logger.info("Downloading models from gs://{}/{}/", _GCS_BUCKET, _GCS_PREFIX)
-    client = storage.Client(project=_GCS_PROJECT)
-    bucket = client.bucket(_GCS_BUCKET)
-
-    local_dir.mkdir(parents=True, exist_ok=True)
-    for filename in _MODEL_FILES:
-        blob_name = f"{_GCS_PREFIX}/{filename}"
-        dest = local_dir / filename
-        logger.debug("  {} → {}", blob_name, dest)
-        bucket.blob(blob_name).download_to_filename(str(dest))
-    logger.info("GCS download complete.")
-
 
 # ---------------------------------------------------------------------------
 # Model directory resolution
@@ -47,24 +24,12 @@ def _resolve_model_dir() -> Path:
          - MODEL_ILLNESS_PATH env var
          - models_illness/ relative to the source tree
     """
-    # ── 1. Try GCS first ─────────────────────────────────────────────────
-    if _GCS_BUCKET:
-        gcs_dest = Path(os.getenv("MODEL_ILLNESS_PATH", "models_illness/gcp_download"))
-        try:
-            _download_from_gcs(gcs_dest)
-            return gcs_dest
-        except Exception as exc:
-            logger.warning("GCS download failed ({}), falling back to local files.", exc)
 
     # ── 2. Fallback: use pre-existing local files ─────────────────────────
     fallback_candidates: list[Path] = []
 
-    env_path = os.getenv("MODEL_ILLNESS_PATH")
-    if env_path:
-        fallback_candidates.append(Path(env_path))
-
     here = Path(__file__).resolve()
-    fallback_candidates.append(here.parents[2] / "models_illness")      # backend/app/models_illness
+    fallback_candidates.append(here.parents[2] / "models_illness")    
     fallback_candidates.append(Path.cwd() / "backend/app/models_illness")
     fallback_candidates.append(Path.cwd() / "app/models_illness")
 
@@ -80,7 +45,6 @@ def _resolve_model_dir() -> Path:
     )
 
 IMG_SIZE = 256
-# IMG_SIZE = 224
 DEVICE   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 _preprocess = transforms.Compose([
