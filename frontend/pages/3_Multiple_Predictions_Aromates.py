@@ -99,9 +99,9 @@ def _predictions_table(rows: list[dict]) -> str:
     """Compact HTML table: Modèle | Prédiction | Confiance."""
     header = (
         "<tr style='background:#f5f5f5'>"
-        "<th style='text-align:left; padding:3px 6px; font-size:0.90rem'>Modèle</th>"
-        "<th style='text-align:left; padding:3px 6px; font-size:0.90rem'>Prédiction</th>"
-        "<th style='text-align:right; padding:3px 6px; font-size:0.90rem'>Confiance</th>"
+        "<th style='text-align:left; padding:3px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>Modèle</th>"
+        "<th style='text-align:left; padding:3px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>Prédiction</th>"
+        "<th style='text-align:right; padding:3px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>Confiance</th>"
         "</tr>"
     )
     body = ""
@@ -110,9 +110,9 @@ def _predictions_table(rows: list[dict]) -> str:
         species_label = _display_species_name(r["species"])
         body += (
             f"<tr>"
-            f"<td style='padding:2px 6px; font-size:0.90rem'>{r['model']}</td>"
-            f"<td style='padding:2px 6px; font-size:0.90rem'>{species_label}</td>"
-            f"<td style='padding:2px 6px; font-size:0.90rem; color:{color}; font-weight:bold; text-align:right'>"
+            f"<td style='padding:2px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>{r['model']}</td>"
+            f"<td style='padding:2px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>{species_label}</td>"
+            f"<td style='padding:2px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem); color:{color}; font-weight:bold; text-align:right'>"
             f"{r['confidence']:.1%}</td>"
             f"</tr>"
         )
@@ -132,7 +132,7 @@ def _consensus_line(rows: list[dict]) -> str:
     color = confidence_color(avg_conf)
     top_herb_label = _display_species_name(top_herb)
     return (
-        f"<div style='font-size:1.3rem; margin-top:4px; text-align:center; width:100%'>"
+        f"<div style='font-size:clamp(0.75rem, 1.5vw, 1.3rem); margin-top:4px; text-align:center; width:100%'>"
         f"<b>{top_herb_label}</b> "
         f"<span style='color:#616161'>({vote_count}/{total} modèles)</span>"
         f" — <span style='color:{color}; font-weight:bold'>{avg_conf:.1%} moy.</span>"
@@ -151,6 +151,10 @@ if "predict_uploader_key" not in st.session_state:
     st.session_state.predict_uploader_key = 0
 if "predict_batch_results" not in st.session_state:
     st.session_state.predict_batch_results = {}   # {filename: {model: {species, confidence}}}
+if "predict_last_mode" not in st.session_state:
+    st.session_state.predict_last_mode = None
+if "predict_last_uploader_filenames" not in st.session_state:
+    st.session_state.predict_last_uploader_filenames = set()
 
 # ---------------------------------------------------------------------------
 # Header
@@ -167,6 +171,13 @@ st.markdown(
 # Mode selector
 # ---------------------------------------------------------------------------
 predict_mode = st.radio("Mode de prédiction", [MODE_INDIVIDUAL, MODE_BATCH], horizontal=True)
+
+if st.session_state.predict_last_mode is not None and predict_mode != st.session_state.predict_last_mode:
+    st.session_state.predict_image_files = []
+    st.session_state.predict_batch_results = {}
+    st.session_state.predict_page = 0
+    cached_predict_top3.clear()
+st.session_state.predict_last_mode = predict_mode
 
 if predict_mode == MODE_INDIVIDUAL:
     st.info(
@@ -195,6 +206,14 @@ with col_path:
     )
 with col_btn:
     load_clicked = st.button("Load", use_container_width=True)
+
+current_uploader_filenames = {f.name for f in uploaded_images} if uploaded_images else set()
+if current_uploader_filenames and current_uploader_filenames != st.session_state.predict_last_uploader_filenames:
+    st.session_state.predict_image_files = []
+    st.session_state.predict_batch_results = {}
+    st.session_state.predict_page = 0
+    cached_predict_top3.clear()
+st.session_state.predict_last_uploader_filenames = current_uploader_filenames
 
 if load_clicked:
     if not uploaded_images:
@@ -371,7 +390,7 @@ for row in range(GRID_ROWS):
                         species_label = _display_species_name(pred["species"])
                         st.markdown(
                             f"<div style='display:flex; justify-content:space-between;"
-                            f"font-size:1.1rem; margin-bottom:1px;'>"
+                            f"font-size:clamp(0.6rem, 1.25vw, 1.1rem); margin-bottom:1px;'>"
                             f"<span>{rank}. {species_label}</span>"
                             f"<span style='color:{color}; font-weight:bold;'>{pred['confidence']:.1%}</span>"
                             f"</div>",

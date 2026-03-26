@@ -92,6 +92,10 @@ if "ill_predict_uploader_key" not in st.session_state:
     st.session_state.ill_predict_uploader_key = 0
 if "ill_predict_batch_results" not in st.session_state:
     st.session_state.ill_predict_batch_results = {}  # {filename: {illness, confidence}}
+if "ill_predict_last_mode" not in st.session_state:
+    st.session_state.ill_predict_last_mode = None
+if "ill_predict_last_uploader_filenames" not in st.session_state:
+    st.session_state.ill_predict_last_uploader_filenames = set()
 
 # ---------------------------------------------------------------------------
 # Header
@@ -107,6 +111,13 @@ st.markdown(
 # Mode selector
 # ---------------------------------------------------------------------------
 predict_mode = st.radio("Mode de prédiction", [MODE_INDIVIDUAL, MODE_BATCH], horizontal=True)
+
+if st.session_state.ill_predict_last_mode is not None and predict_mode != st.session_state.ill_predict_last_mode:
+    st.session_state.ill_predict_image_files = []
+    st.session_state.ill_predict_batch_results = {}
+    st.session_state.ill_predict_page = 0
+    cached_predict_illness_top3.clear()
+st.session_state.ill_predict_last_mode = predict_mode
 
 if predict_mode == MODE_INDIVIDUAL:
     st.info(
@@ -135,6 +146,14 @@ with col_path:
     )
 with col_btn:
     load_clicked = st.button("Load", use_container_width=True)
+
+current_uploader_filenames = {f.name for f in uploaded_images} if uploaded_images else set()
+if current_uploader_filenames and current_uploader_filenames != st.session_state.ill_predict_last_uploader_filenames:
+    st.session_state.ill_predict_image_files = []
+    st.session_state.ill_predict_batch_results = {}
+    st.session_state.ill_predict_page = 0
+    cached_predict_illness_top3.clear()
+st.session_state.ill_predict_last_uploader_filenames = current_uploader_filenames
 
 if load_clicked:
     if not uploaded_images:
@@ -260,7 +279,7 @@ for row in range(GRID_ROWS):
                 st.image(file["bytes"], width="stretch")
                 st.caption(f"{'⚠️ ' if low_confidence else ''}{file['name']}")
                 st.markdown(
-                    f"<div style='font-size:1.32rem; margin-bottom:24px'>"
+                    f"<div style='font-size:clamp(0.75rem, 1.55vw, 1.32rem); margin-bottom:24px'>"
                     f"<b>{display_name}</b> — "
                     f"<span style='color:{color}; font-weight:bold'>{pred['confidence']:.1%}</span>"
                     f"</div>",
@@ -289,7 +308,7 @@ for row in range(GRID_ROWS):
                     name = FICHES_ILL.get(pred["illness"], {}).get("nom_maladie_fr") or pred["illness"]
                     st.markdown(
                         f"<div style='display:flex; justify-content:space-between;"
-                        f"font-size:1rem; margin-bottom:2px;'>"
+                        f"font-size:clamp(0.6rem, 1.2vw, 1rem); margin-bottom:2px;'>"
                         f"<span>{rank}. {name}</span>"
                         f"<span style='color:{color}; font-weight:bold;'>{pred['confidence']:.1%}</span>"
                         f"</div>",
