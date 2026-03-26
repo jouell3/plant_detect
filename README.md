@@ -95,7 +95,34 @@ curl -X POST http://localhost:8080/predict_herb \
 
 ---
 
-## 4. Déploiement sur GCP
+## 4. Tests
+
+### Installation des dépendances de test
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+```
+
+### Lancer tous les tests
+
+```bash
+cd backend
+pytest -v
+```
+
+### Tests disponibles
+
+| Fichier | Ce qui est testé |
+|---|---|
+| `tests/test_api.py` | Endpoints FastAPI (`/`, `/predict_herb`, `/predict_illness`, `/predict-set`, `/predict-set_illness`) |
+| `tests/test_deploy_script.py` | Fonctions du script `scripts/deploy_models.py` (`_pick_latest`, `build_sklearn_files`, `upload`) |
+
+> Les tests ne chargent aucun poids de modèle et ne font aucun appel à GCS — toutes les fonctions ML sont remplacées par des stubs légers.
+
+---
+
+## 5. Déploiement sur GCP
 
 ### 4.1 Créer le repository Artifact Registry (une seule fois)
 
@@ -145,7 +172,7 @@ make build_gcp
 
 ---
 
-## 5. Mettre à jour la configuration du service
+## 6. Mettre à jour la configuration du service
 
 ### Changer les variables d'environnement
 
@@ -173,7 +200,7 @@ gcloud run services update plant-detect-backend \
 
 ---
 
-## 6. Logs
+## 7. Logs
 
 ```bash
 make get_log_gcp
