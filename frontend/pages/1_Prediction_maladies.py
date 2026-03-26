@@ -2,7 +2,6 @@ import io
 import json
 import os
 import random
-import time
 from datetime import datetime
 from pathlib import Path
 
@@ -12,7 +11,7 @@ from loguru import logger
 from PIL import Image
 
 from styles import COLORS, confidence_color, confidence_badge, styled_info_card, page_header
-from utils import validate_image_file
+from utils import post_with_retries, validate_image_file
 
 API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
 #API_URL = "http://localhost:8080"
@@ -47,24 +46,6 @@ def _normalize_species_key(value: str) -> str:
     return (value or "").strip().lower().replace("-", " ")
 
 
-def _post_predict_with_retries(file_name: str, file_bytes: bytes, file_mime: str | None):
-    last_error = None
-    for idx, delay in enumerate((0.0, *RETRY_DELAYS_SECONDS)):
-        if delay > 0:
-            time.sleep(delay)
-        try:
-            response = requests.post(
-                f"{API_URL}/predict_illness",
-                files={"file": (file_name, file_bytes, file_mime or "image/jpeg")},
-                timeout=60,
-            )
-            response.raise_for_status()
-            return response
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.HTTPError) as e:
-            last_error = e
-            logger.warning("predict_illness failed | attempt={} | error={}", idx + 1, e)
-    raise last_error
-
 # ---------------------------------------------------------------------------
 # Sidebar — prediction history
 # ---------------------------------------------------------------------------
@@ -91,7 +72,7 @@ with st.sidebar:
                 )
                 st.divider()
 
-st.title("🌿 Maladie Predictor")
+st.title("🌿 Predicteur de maladies de pommier ou tomate")
 st.markdown("Vous pouvez soit choisir une image dans vos dossiers, soit prendre une photo directement avec votre caméra. Le modèle de reconnaissance de maladie de plantes vous donnera une prédiction en temps réel avec un score de confiance. N'hésitez pas à tester plusieurs images pour voir les résultats !")
 st.markdown("Pour predire plusieurs images à la fois, rendez-vous dans l'onglet 'Batch Predict'.")
 
@@ -143,7 +124,13 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
         try:
             logger.info("predict_illness | file={}", uploaded_file.name)
             file_bytes = uploaded_file.getvalue()
-            response = _post_predict_with_retries(uploaded_file.name, file_bytes, uploaded_file.type)
+            response = post_with_retries(
+                url=f"{API_URL}/predict_illness",
+                files={"file": (uploaded_file.name, file_bytes, uploaded_file.type or "image/jpeg")},
+                timeout=60,
+                retry_delays_seconds=RETRY_DELAYS_SECONDS,
+                log_message="predict_illness failed",
+            )
         except requests.exceptions.ConnectionError:
             st.error("Impossible de joindre l'API. Vérifiez que le service est en ligne.")
             logger.error("API connection error | url={}", API_URL)
