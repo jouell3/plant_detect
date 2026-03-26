@@ -1,0 +1,133 @@
+
+{
+  "Apple_scab": {
+    "nom_maladie_fr": "Oïdium du pommier",
+    "nom_en": "Apple scab",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Tavelure_du_pommier",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Apple_scab",
+    "cause": "Maladie fongique causée par Venturia inaequalis, provoquant des taches sombres sur les feuilles et fruits.",
+    "traitement_curatif": "Éliminer les parties infectées, appliquer des fongicides adaptés.",
+    "traitement_preventif": "Choisir des variétés résistantes, nettoyage régulier, traiter préventivement au printemps.",
+    "saison_gravite": "Printemps, moyenne à forte gravité"
+  },
+  "Apple_Black_rot": {
+    "nom_maladie_fr": "Pourriture noire du pommier",
+    "nom_en": "Apple black rot",
+    "wikipedia_fr": "https://rwdf.cra.wallonie.be/sites/default/files/linked_docs/Fruits/6-Maladies-ravageurs/Champignons-Virus-Bacteries/black_rot_pommier.pdf",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Botryosphaeria_obtusa",
+    "cause": "Infection fongique causée par Botryosphaeria obtusa, provoquant des taches noires sur fruits et branches.",
+    "traitement_curatif": "Couper les branches malades, appliquer un fongicide.",
+    "traitement_preventif": "Éliminer les fruits tombés, désinfection des outils, variétés résistantes.",
+    "saison_gravite": "Été, forte gravité"
+  },
+  "Apple_Cedar_apple_rust": {
+    "nom_maladie_fr": "Rouille du pommier",
+    "nom_en": "Cedar apple rust",
+    "wikipedia_fr": "https://arbrefruitiers.com/pages/maladies-des-fruitiers-en-france-rouille-des-fruitiers",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Gymnosporangium_juniperi-virginianae",
+    "cause": "Maladie causée par Gymnosporangium juniperi-virginianae nécessitant un hôte intermédiaire (genévrier).",
+    "traitement_curatif": "Retirer les arbres hôtes proches, fongicides spécifiques.",
+    "traitement_preventif": "Planter loin des genévriers, traitement_preventif au printemps.",
+    "saison_gravite": "Printemps, moyenne gravité"
+  },
+  "Tomato_Bacterial_spot": {
+    "nom_maladie_fr": "Tache bactérienne de la tomate",
+    "nom_en": "Tomato bacterial spot",
+    "wikipedia_fr": "http://www.ontario.ca/fr/page/maladies-bacteriennes-de-la-tomate-tache-bacterienne-moucheture-bacterienne-et-chancre#:~:text=La%20tache%20bact%C3%A9rienne%20se%20manifeste,diam%C3%A8tre%20de%203%2D5%20mm%20.",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/List_of_tomato_diseases#Bacterial_diseases",
+    "cause": "Infection bactérienne causée par Xanthomonas spp., provoquant des taches sur feuilles et fruits.",
+    "traitement_curatif": "Élimination des feuilles infectées, traitement cuprique.",
+    "traitement_preventif": "Rotation des cultures, semences certifiées, éviter l’irrigation par aspersion.",
+    "saison_gravite": "Été, moyenne gravité"
+  },
+  "Tomato_Early_blight": {
+    "nom_maladie_fr": "Brûlure précoce de la tomate",
+    "nom_en": "Tomato early blight",
+    "wikipedia_fr": "https://fr.novobac.com/blog/lutte-contre-le-mildiou-de-la-tomate-et-traitement/",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/List_of_tomato_diseases#Fungal_diseases",
+    "cause": "Maladie fongique causée par Alternaria solani, taches concentriques sur feuilles et tiges.",
+    "traitement_curatif": "Retirer les feuilles infectées, fongicides à base de cuivre ou chlorothalonil.",
+    "traitement_preventif": "Rotation des cultures, éviter humidité excessive, espacements suffisants.",
+    "saison_gravite": "Été, forte gravité"
+  },
+  "Tomato_healthy": {
+    "nom_maladie_fr": "Tomate saine",
+    "nom_en": "Tomato healthy",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Tomate",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Tomato",
+    "cause": "-",
+    "traitement_curatif": "-",
+    "traitement_preventif": "Maintenir un bon arrosage, rotation des cultures, variétés résistantes, bonne hygiène des outils.",
+    "saison_gravite": "Tomate"
+  },
+  "Tomato_Late_blight": {
+    "nom_maladie_fr": "Mildiou de la tomate",
+    "nom_en": "Tomato late blight",
+    "wikipedia_fr": "https://www.semaille.com/fr/les-maladies-et-ravageurs/1686-comment-soigner-ses-plants-de-tomates-.html#:~:text=Le%20Mildiou,-Cette%20maladie%20fongique&text=Sur%20les%20feuilles%2C%20elle%20se,la%20plante%20enti%C3%A8re%20soit%20affect%C3%A9e.",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Phytophthora_infestans",
+    "cause": "Maladie fongique causée par Phytophthora infestans, feuilles et fruits flétrissent et noircissent.",
+    "traitement_curatif": "Fongicides spécifiques (ex : cuivre, chlorothalonil), retirer parties infectées.",
+    "traitement_preventif": "Éviter humidité prolongée, variétés résistantes, rotation des cultures.",
+    "saison_gravite": "Été, très grave"
+  },
+  "Tomato_Leaf_Mold": {
+    "nom_maladie_fr": "Mildiou foliaire de la tomate",
+    "nom_en": "Tomato leaf mold",
+    "wikipedia_fr": "https://www.agryco.com/blog/cultures/mildiou-tomate",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Tomato_leaf_mold",
+    "cause": "Infection fongique causée par Passalora fulva, taches jaunes sur feuilles supérieures.",
+    "traitement_curatif": "Retirer feuilles atteintes, fongicides adaptés.",
+    "traitement_preventif": "Bonne ventilation, espacement des plants, variétés résistantes.",
+    "saison_gravite": "Été, moyenne gravité"
+  },
+  "Tomato_Septoria_leaf_spot": {
+    "nom_maladie_fr": "Septoriose de la tomate",
+    "nom_en": "Tomato septoria leaf spot",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Septoria_lycopersici",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Septoria_lycopersici",
+    "cause": "Maladie fongique causée par Septoria lycopersici, petites taches brunes sur feuilles.",
+    "traitement_curatif": "Couper les feuilles infectées, fongicides adaptés.",
+    "traitement_preventif": "Rotation des cultures, éviter humidité excessive.",
+    "saison_gravite": "Été, moyenne gravité"
+  },
+  "Tomato_Spider_mites": {
+    "nom_maladie_fr": "Tétranyque de la tomate",
+    "nom_en": "Tomato spider mites (two-spotted spider mite)",
+    "wikipedia_fr": "https://www.cliniquedesplantes.fr/fiches/les-acariens-de-la-tomate#:~:text=Les%20sympt%C3%B4mes%20de%20la%20pr%C3%A9sence,et%20prennent%20une%20teinte%20terne.",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Bacterial_leaf_spot_of_peppers_and_tomato",
+    "cause": "Petit acarien (Tetranychus urticae) qui suce la sève des feuilles, provoquant jaunissement et chute.",
+    "traitement_curatif": "Insecticides acaricides, lavage des feuilles.",
+    "traitement_preventif": "Surveillance régulière, introduire prédateurs naturels (acarien phytoseiulus).",
+    "saison_gravite": "Été, moyenne gravité"
+  },
+  "Tomato_Target_Spot": {
+    "nom_maladie_fr": "Tache cible de la tomate",
+    "nom_en": "Tomato target spot",
+    "wikipedia_fr": "https://www.jardiner-autrement.fr/fiches-techniques/tomate-alternariose/é",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/List_of_tomato_diseases",
+    "cause": "Maladie fongique causée par Corynespora cassiicola, taches circulaires sur feuilles et fruits.",
+    "traitement_curatif": "Retirer parties infectées, fongicides adaptés.",
+    "traitement_preventif": "Rotation des cultures, éviter humidité excessive.",
+    "saison_gravite": "Été, moyenne gravité"
+  },
+  "Tomato_mosaic_virus": {
+    "nom_maladie_fr": "Virus de la mosaïque de la tomate",
+    "nom_en": "Tomato mosaic virus",
+    "wikipedia_fr": "https://fr.wikipedia.org/wiki/Virus_de_la_mosa%C3%AFque_de_la_tomate#:~:text=Tobamovirus%20tomatotessellati%2C%20le%20virus%20de,esp%C3%A8ce%2Dtype%20de%20ce%20genre.",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Tomato_mosaic_virus",
+    "cause": "Infection virale causée par TMV, déformations et taches jaunes sur feuilles et fruits.",
+    "traitement_curatif": "Pas de traitement_curatif, retirer plantes infectées.",
+    "traitement_preventif": "Semences certifiées, désinfection des outils, rotation des cultures.",
+    "saison_gravite": "Toute saison, forte gravité"
+  },
+  "Tomato_Yellow_Leaf_Curl_Virus": {
+    "nom_maladie_fr": "Virus du jaunissement en feuille de la tomate",
+    "nom_en": "Tomato yellow leaf curl virus",
+    "wikipedia_fr": "https://ephytia.inrae.fr/fr/C/5066/Tomate-Virus-de-la-chlorose-de-la-tomate-ToCV",
+    "wikipedia_en": "https://en.wikipedia.org/wiki/Tomato_yellow_leaf_curl_virus",
+    "cause": "Infection virale transmise par la mouche blanche, feuilles se recroquevillent et jaunissent.",
+    "traitement_curatif": "Pas de traitement_curatif, retirer plantes infectées.",
+    "traitement_preventif": "Contrôle des vecteurs, variétés résistantes.",
+    "saison_gravite": "Toute saison, forte gravité"
+  }
+}

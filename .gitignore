@@ -2,8 +2,8 @@
 models/
 models_sklearn/
 models_illness/
-model_pytorch_l/
-model_tf/
+models_pytorch_large/
+models_tensorflow/
 !models/.gitkeep
 data/
 notebooks/dataset_aromatic_duckduckgo/
@@ -21,6 +21,7 @@ mlflow-artifacts
 mlruns
 mlflow.db
 !frontend/fiches.json
+!frontend/fiches_ill.json
 !frontend/suggestions.json
 
 # python

@@ -2,7 +2,6 @@ import io
 import json
 import os
 import random
-import time
 from datetime import datetime
 from pathlib import Path
 
@@ -12,9 +11,11 @@ from loguru import logger
 from PIL import Image
 
 from styles import COLORS, confidence_color, confidence_badge, styled_info_card, page_header
-from utils import validate_image_file
+from utils import post_with_retries, validate_image_file
 
 API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
+#API_URL = "http://localhost:8080"
+#API_URL = "https://herb-predictor-966041648100.europe-west1.run.app"
 MAX_HISTORY_ITEMS = 20
 RETRY_DELAYS_SECONDS = (0.8, 1.6)
 
@@ -45,25 +46,6 @@ if "last_uploaded_id" not in st.session_state:
 
 def _normalize_species_key(value: str) -> str:
     return (value or "").strip().lower().replace("-", " ")
-
-
-def _post_predict_with_retries(file_name: str, file_bytes: bytes, file_mime: str | None):
-    last_error = None
-    for idx, delay in enumerate((0.0, *RETRY_DELAYS_SECONDS)):
-        if delay > 0:
-            time.sleep(delay)
-        try:
-            response = requests.post(
-                f"{API_URL}/predict_herb",
-                files={"file": (file_name, file_bytes, file_mime or "image/jpeg")},
-                timeout=60,
-            )
-            response.raise_for_status()
-            return response
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.HTTPError) as e:
-            last_error = e
-            logger.warning("predict_herb failed | attempt={} | error={}", idx + 1, e)
-    raise last_error
 
 
 def _generate_recipe_prompt(dish_name: str, herb_name: str) -> str:
@@ -106,7 +88,7 @@ with st.sidebar:
                 )
                 st.divider()
 
-st.title("🌿 Plant Predictor")
+st.title("🌿 Predicteur d'aromate")
 st.markdown("Vous pouvez soit choisir une image dans vos dossiers, soit prendre une photo directement avec votre caméra. Le modèle de reconnaissance d'herbes aromatiques vous donnera une prédiction en temps réel avec un score de confiance. N'hésitez pas à tester plusieurs images pour voir les résultats !")
 st.markdown("Pour predire plusieurs images à la fois, rendez-vous dans l'onglet 'Batch Predict'.")
 
@@ -160,7 +142,13 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
         try:
             logger.info("predict_herb | file={}", uploaded_file.name)
             file_bytes = uploaded_file.getvalue()
-            response = _post_predict_with_retries(uploaded_file.name, file_bytes, uploaded_file.type)
+            response = post_with_retries(
+                url=f"{API_URL}/predict_herb",
+                files={"file": (uploaded_file.name, file_bytes, uploaded_file.type or "image/jpeg")},
+                timeout=60,
+                retry_delays_seconds=RETRY_DELAYS_SECONDS,
+                log_message="predict_herb failed",
+            )
         except requests.exceptions.ConnectionError:
             st.error("Impossible de joindre l'API. Vérifiez que le service est en ligne.")
             logger.error("API connection error | url={}", API_URL)
@@ -232,7 +220,7 @@ if prediction:
     if len(set(herb_found)) == 2:
         st.warning("Au moins un des modèles n'est pas d'accord sur la prédiction mais voici quand même la predictions obtenue pour les 3 autres modèles. Vous pouvez voir les détails de chaque prédiction en bas de page.  \n Essayez avec une autre image ou prenez la photo dans de meilleures conditions d'éclairage ou d'angle.")
     if len(set(herb_found)) <= 2:
-        st.markdown(f"##### Le modèle a prédit {top_species_fr.lower()} avec une confiance moyenne de {mean_confidence:.0%} sur les {len(good_models)} modèles suivants: {', '.join(good_models)}.")
+        st.success(f"Le modèle a prédit **{top_species_fr.lower()}** avec une confiance moyenne de {mean_confidence:.0%} sur les {len(good_models)} modèles suivants: {', '.join(good_models)}.")
     
     col_img, col_fiche= st.columns([ 1, 3], vertical_alignment="bottom", gap="large")
 
