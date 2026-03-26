@@ -80,7 +80,6 @@ def _resolve_model_dir() -> Path:
     )
 
 IMG_SIZE = 256
-# IMG_SIZE = 224
 DEVICE   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 _preprocess = transforms.Compose([
@@ -143,15 +142,6 @@ def _load_batch(img_paths: list[str]) -> torch.Tensor:
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
-def predict(img_path: str) -> tuple[str, float]:
-    _ensure_loaded()
-    with torch.no_grad():
-        proba = torch.softmax(_model(_load_tensor(img_path)), dim=1).squeeze()
-    confidence, class_idx = proba.max(dim=0)
-    species = _le.inverse_transform([class_idx.item()])[0]
-    return species, round(confidence.item(), 4)
-
-
 def predict_top3(img_path: str) -> list[tuple[str, float]]:
     _ensure_loaded()
     with torch.no_grad():
