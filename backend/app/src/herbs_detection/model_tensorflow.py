@@ -202,14 +202,6 @@ def _load_batch(img_paths: list[str]) -> np.ndarray:
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
-def predict(img_path: str) -> tuple[str, float]:
-    _ensure_loaded()
-    proba = _model.predict(_load_array(img_path), verbose=0)[0]
-    class_idx = int(np.argmax(proba))
-    species = _le.inverse_transform([class_idx])[0]
-    return species, round(float(proba[class_idx]), 4)
-
-
 def predict_top3(img_path: str) -> list[tuple[str, float]]:
     _ensure_loaded()
     proba = _model.predict(_load_array(img_path), verbose=0)[0]
