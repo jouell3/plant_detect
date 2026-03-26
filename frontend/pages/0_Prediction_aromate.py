@@ -236,7 +236,7 @@ if prediction:
     if len(set(herb_found)) <= 2:
         st.markdown(f"##### Le modèle a prédit {top_species_fr.lower()} avec une confiance moyenne de {mean_confidence:.0%} sur les {len(good_models)} modèles suivants: {', '.join(good_models)}.")
     
-    col_img, col_fiche= st.columns([ 1, 3], vertical_alignment="bottom", gap="large")
+    col_img, col_fiche= st.columns([ 1, 3], vertical_alignment="center", gap="large")
 
     with col_img:
         img = Image.open(io.BytesIO(prediction["uploaded_bytes"]))

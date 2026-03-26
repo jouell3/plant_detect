@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import os
 import time
 from collections import Counter
@@ -25,6 +26,18 @@ PAGE_SIZE = GRID_COLS * GRID_ROWS  # 25
 
 MODE_INDIVIDUAL = "Individuel — Top-3"
 MODE_BATCH      = "Batch — Top-1"
+
+_FICHES_PATH = Path(__file__).parent.parent / "fiches.json"
+FICHES: dict = json.loads(_FICHES_PATH.read_text(encoding="utf-8")) if _FICHES_PATH.exists() else {}
+
+
+def _normalize_species_key(value: str) -> str:
+    return (value or "").strip().lower().replace("-", " ")
+
+
+def _display_species_name(species: str) -> str:
+    fiche = FICHES.get(_normalize_species_key(species), {})
+    return fiche.get("nom_fr", species)
 
 
 # ---------------------------------------------------------------------------
@@ -86,19 +99,20 @@ def _predictions_table(rows: list[dict]) -> str:
     """Compact HTML table: Modèle | Prédiction | Confiance."""
     header = (
         "<tr style='background:#f5f5f5'>"
-        "<th style='text-align:left; padding:3px 6px; font-size:0.70rem'>Modèle</th>"
-        "<th style='text-align:left; padding:3px 6px; font-size:0.70rem'>Prédiction</th>"
-        "<th style='text-align:right; padding:3px 6px; font-size:0.70rem'>Confiance</th>"
+        "<th style='text-align:left; padding:3px 6px; font-size:0.90rem'>Modèle</th>"
+        "<th style='text-align:left; padding:3px 6px; font-size:0.90rem'>Prédiction</th>"
+        "<th style='text-align:right; padding:3px 6px; font-size:0.90rem'>Confiance</th>"
         "</tr>"
     )
     body = ""
     for r in rows:
         color = confidence_color(r["confidence"])
+        species_label = _display_species_name(r["species"])
         body += (
             f"<tr>"
-            f"<td style='padding:2px 6px; font-size:0.70rem'>{r['model']}</td>"
-            f"<td style='padding:2px 6px; font-size:0.70rem'>{r['species']}</td>"
-            f"<td style='padding:2px 6px; font-size:0.70rem; color:{color}; font-weight:bold; text-align:right'>"
+            f"<td style='padding:2px 6px; font-size:0.90rem'>{r['model']}</td>"
+            f"<td style='padding:2px 6px; font-size:0.90rem'>{species_label}</td>"
+            f"<td style='padding:2px 6px; font-size:0.90rem; color:{color}; font-weight:bold; text-align:right'>"
             f"{r['confidence']:.1%}</td>"
             f"</tr>"
         )
@@ -116,9 +130,10 @@ def _consensus_line(rows: list[dict]) -> str:
     total = len(rows)
     avg_conf = sum(r["confidence"] for r in rows if r["species"] == top_herb) / vote_count
     color = confidence_color(avg_conf)
+    top_herb_label = _display_species_name(top_herb)
     return (
-        f"<div style='font-size:0.78rem; margin-top:4px'>"
-        f"<b>{top_herb}</b> "
+        f"<div style='font-size:1.3rem; margin-top:4px; text-align:center; width:100%'>"
+        f"<b>{top_herb_label}</b> "
         f"<span style='color:#616161'>({vote_count}/{total} modèles)</span>"
         f" — <span style='color:{color}; font-weight:bold'>{avg_conf:.1%} moy.</span>"
         f"</div>"
@@ -317,8 +332,12 @@ for row in range(GRID_ROWS):
                 low_confidence = first_conf < min_confidence
                 st.image(file["bytes"], width="stretch")
                 st.caption(f"{'⚠️ ' if low_confidence else ''}{file['name']}")
-                st.markdown(_predictions_table(rows), unsafe_allow_html=True)
                 st.markdown(_consensus_line(rows), unsafe_allow_html=True)
+                st.markdown(" ")
+                st.markdown(_predictions_table(rows), unsafe_allow_html=True)
+                
+                st.markdown(" ")
+                st.markdown(" ")
 
             # ── Individual mode ─────────────────────────────────────────
             else:
@@ -334,18 +353,32 @@ for row in range(GRID_ROWS):
                 low_confidence = first_conf < min_confidence
                 st.image(file["bytes"], width="stretch")
                 st.caption(f"{'⚠️ ' if low_confidence else ''}{file['name']}")
+
+                # Ligne de consensus sur les top-1 des modèles (comme en mode batch)
+                top1_rows = [
+                    {"model": model_key, "species": preds[0]["species"], "confidence": preds[0]["confidence"]}
+                    for model_key, preds in data.items()
+                    if preds
+                ]
+                if top1_rows:
+                    st.markdown(_consensus_line(top1_rows), unsafe_allow_html=True)
+                st.markdown(" ")
+
                 for model_key, top3 in data.items():
                     st.markdown(f"**{model_key.upper()}**", unsafe_allow_html=True)
                     for rank, pred in enumerate(top3, 1):
                         color = confidence_color(pred["confidence"]) if rank == 1 else "#999"
+                        species_label = _display_species_name(pred["species"])
                         st.markdown(
                             f"<div style='display:flex; justify-content:space-between;"
-                            f"font-size:0.78rem; margin-bottom:2px;'>"
-                            f"<span>{rank}. {pred['species']}</span>"
+                            f"font-size:1.1rem; margin-bottom:1px;'>"
+                            f"<span>{rank}. {species_label}</span>"
                             f"<span style='color:{color}; font-weight:bold;'>{pred['confidence']:.1%}</span>"
                             f"</div>",
                             unsafe_allow_html=True,
                         )
+                st.markdown(" ")
+                st.markdown(" ")
 
 # ---------------------------------------------------------------------------
 # Pagination
