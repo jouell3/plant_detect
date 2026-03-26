@@ -95,13 +95,16 @@ def fetch_predict_batch(files: list[dict]) -> dict:
 # Display helpers
 # ---------------------------------------------------------------------------
 
+_CELL = "padding:2px 3px; font-size:clamp(0.5rem, 0.95vw, 0.82rem); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:0"
+_HEAD = f"background:#f5f5f5; {_CELL}"
+
 def _predictions_table(rows: list[dict]) -> str:
     """Compact HTML table: Modèle | Prédiction | Confiance."""
     header = (
-        "<tr style='background:#f5f5f5'>"
-        "<th style='text-align:left; padding:3px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>Modèle</th>"
-        "<th style='text-align:left; padding:3px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>Prédiction</th>"
-        "<th style='text-align:right; padding:3px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>Confiance</th>"
+        "<tr>"
+        f"<th style='text-align:left; {_HEAD}'>Modèle</th>"
+        f"<th style='text-align:left; {_HEAD}'>Prédiction</th>"
+        f"<th style='text-align:right; {_HEAD}'>Confiance</th>"
         "</tr>"
     )
     body = ""
@@ -110,15 +113,15 @@ def _predictions_table(rows: list[dict]) -> str:
         species_label = _display_species_name(r["species"])
         body += (
             f"<tr>"
-            f"<td style='padding:2px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>{r['model']}</td>"
-            f"<td style='padding:2px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem)'>{species_label}</td>"
-            f"<td style='padding:2px 6px; font-size:clamp(0.55rem, 1.05vw, 0.90rem); color:{color}; font-weight:bold; text-align:right'>"
-            f"{r['confidence']:.1%}</td>"
+            f"<td style='text-align:left; {_CELL}'>{r['model']}</td>"
+            f"<td style='text-align:left; {_CELL}'>{species_label}</td>"
+            f"<td style='text-align:right; {_CELL}; color:{color}; font-weight:bold'>{r['confidence']:.1%}</td>"
             f"</tr>"
         )
     return (
-        f"<table style='width:100%; border-collapse:collapse; margin-top:6px; margin-bottom:4px; "
-        f"border:1px solid #e0e0e0; border-radius:4px'>"
+        f"<table style='width:100%; table-layout:fixed; border-collapse:collapse; margin-top:6px; margin-bottom:4px; "
+        f"border:1px solid #e0e0e0; border-radius:4px; overflow:hidden'>"
+        f"<colgroup><col style='width:30%'><col style='width:42%'><col style='width:28%'></colgroup>"
         f"<thead>{header}</thead><tbody>{body}</tbody></table>"
     )
 
@@ -132,10 +135,10 @@ def _consensus_line(rows: list[dict]) -> str:
     color = confidence_color(avg_conf)
     top_herb_label = _display_species_name(top_herb)
     return (
-        f"<div style='font-size:clamp(0.75rem, 1.5vw, 1.3rem); margin-top:4px; text-align:center; width:100%'>"
-        f"<b>{top_herb_label}</b> "
-        f"<span style='color:#616161'>({vote_count}/{total} modèles)</span>"
-        f" — <span style='color:{color}; font-weight:bold'>{avg_conf:.1%} moy.</span>"
+        f"<div style='text-align:center; width:100%; margin-top:6px; margin-bottom:2px; line-height:1.4'>"
+        f"<div style='font-size:clamp(0.85rem, 1.6vw, 1.3rem); font-weight:bold'>{top_herb_label}</div>"
+        f"<div style='font-size:clamp(0.6rem, 1.0vw, 0.85rem); color:#757575'>({vote_count}/{total} modèles)</div>"
+        f"<div style='font-size:clamp(0.7rem, 1.2vw, 1.0rem); color:{color}; font-weight:bold'>{avg_conf:.1%} certitude</div>"
         f"</div>"
     )
 
@@ -381,22 +384,21 @@ for row in range(GRID_ROWS):
                 ]
                 if top1_rows:
                     st.markdown(_consensus_line(top1_rows), unsafe_allow_html=True)
-                st.markdown(" ")
 
-                for model_key, top3 in data.items():
-                    st.markdown(f"**{model_key.upper()}**", unsafe_allow_html=True)
-                    for rank, pred in enumerate(top3, 1):
-                        color = confidence_color(pred["confidence"]) if rank == 1 else "#999"
-                        species_label = _display_species_name(pred["species"])
-                        st.markdown(
-                            f"<div style='display:flex; justify-content:space-between;"
-                            f"font-size:clamp(0.6rem, 1.25vw, 1.1rem); margin-bottom:1px;'>"
-                            f"<span>{rank}. {species_label}</span>"
-                            f"<span style='color:{color}; font-weight:bold;'>{pred['confidence']:.1%}</span>"
-                            f"</div>",
-                            unsafe_allow_html=True,
-                        )
-                st.markdown(" ")
+                with st.expander("Voir les détails"):
+                    for model_key, top3 in data.items():
+                        st.markdown(f"**{model_key.upper()}**", unsafe_allow_html=True)
+                        for rank, pred in enumerate(top3, 1):
+                            color = confidence_color(pred["confidence"]) if rank == 1 else "#999"
+                            species_label = _display_species_name(pred["species"])
+                            st.markdown(
+                                f"<div style='display:flex; justify-content:space-between;"
+                                f"font-size:clamp(0.6rem, 1.25vw, 1.1rem); margin-bottom:1px;'>"
+                                f"<span>{rank}. {species_label}</span>"
+                                f"<span style='color:{color}; font-weight:bold;'>{pred['confidence']:.1%}</span>"
+                                f"</div>",
+                                unsafe_allow_html=True,
+                            )
                 st.markdown(" ")
 
 # ---------------------------------------------------------------------------

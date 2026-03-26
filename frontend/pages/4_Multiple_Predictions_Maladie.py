@@ -279,9 +279,9 @@ for row in range(GRID_ROWS):
                 st.image(file["bytes"], width="stretch")
                 st.caption(f"{'⚠️ ' if low_confidence else ''}{file['name']}")
                 st.markdown(
-                    f"<div style='font-size:clamp(0.75rem, 1.55vw, 1.32rem); margin-bottom:24px'>"
-                    f"<b>{display_name}</b> — "
-                    f"<span style='color:{color}; font-weight:bold'>{pred['confidence']:.1%}</span>"
+                    f"<div style='text-align:center; width:100%; margin-top:6px; margin-bottom:2px; line-height:1.4'>"
+                    f"<div style='font-size:clamp(0.85rem, 1.6vw, 1.3rem); font-weight:bold'>{display_name}</div>"
+                    f"<div style='font-size:clamp(0.7rem, 1.2vw, 1.0rem); color:{color}; font-weight:bold'>{pred['confidence']:.1%} certitude</div>"
                     f"</div>",
                     unsafe_allow_html=True,
                 )
@@ -301,19 +301,41 @@ for row in range(GRID_ROWS):
                 first_conf = top3[0]["confidence"]
                 low_confidence = first_conf < min_confidence
 
+                top1_name = FICHES_ILL.get(top3[0]["illness"], {}).get("nom_maladie_fr") or top3[0]["illness"]
+                top1_color = confidence_color(top3[0]["confidence"])
+
                 st.image(file["bytes"], width="stretch")
                 st.caption(f"{'⚠️ ' if low_confidence else ''}{file['name']}")
+                st.markdown(
+                    f"<div style='text-align:center; width:100%; margin-top:6px; margin-bottom:4px; line-height:1.4'>"
+                    f"<div style='font-size:clamp(0.85rem, 1.6vw, 1.3rem); font-weight:bold'>{top1_name}</div>"
+                    f"<div style='font-size:clamp(0.7rem, 1.2vw, 1.0rem); color:{top1_color}; font-weight:bold'>{top3[0]['confidence']:.1%} certitude</div>"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
+                _CELL_ILL = "padding:2px 3px; font-size:clamp(0.5rem, 0.95vw, 0.82rem); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:0"
+                _HEAD_ILL = f"background:#f5f5f5; {_CELL_ILL}"
+                rows_html = ""
                 for rank, pred in enumerate(top3, 1):
                     color = confidence_color(pred["confidence"]) if rank == 1 else "#999"
                     name = FICHES_ILL.get(pred["illness"], {}).get("nom_maladie_fr") or pred["illness"]
-                    st.markdown(
-                        f"<div style='display:flex; justify-content:space-between;"
-                        f"font-size:clamp(0.6rem, 1.2vw, 1rem); margin-bottom:2px;'>"
-                        f"<span>{rank}. {name}</span>"
-                        f"<span style='color:{color}; font-weight:bold;'>{pred['confidence']:.1%}</span>"
-                        f"</div>",
-                        unsafe_allow_html=True,
+                    rows_html += (
+                        f"<tr>"
+                        f"<td style='text-align:center; {_CELL_ILL}'>{rank}</td>"
+                        f"<td style='text-align:left; {_CELL_ILL}'>{name}</td>"
+                        f"<td style='text-align:right; {_CELL_ILL}; color:{color}; font-weight:bold'>{pred['confidence']:.1%}</td>"
+                        f"</tr>"
                     )
+                st.markdown(
+                    f"<table style='width:100%; table-layout:fixed; border-collapse:collapse; margin-top:4px; margin-bottom:4px; border:1px solid #e0e0e0; border-radius:4px; overflow:hidden'>"
+                    f"<colgroup><col style='width:12%'><col style='width:58%'><col style='width:30%'></colgroup>"
+                    f"<thead><tr>"
+                    f"<th style='text-align:center; {_HEAD_ILL}'>#</th>"
+                    f"<th style='text-align:left; {_HEAD_ILL}'>Maladie</th>"
+                    f"<th style='text-align:right; {_HEAD_ILL}'>Confiance</th>"
+                    f"</tr></thead><tbody>{rows_html}</tbody></table>",
+                    unsafe_allow_html=True,
+                )
                 st.markdown(" ")
 
 # ---------------------------------------------------------------------------
