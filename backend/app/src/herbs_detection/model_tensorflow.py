@@ -85,9 +85,13 @@ def _download_from_gcs_tensorflow(local_dir: Path) -> None:
 # Model directory resolution
 # ---------------------------------------------------------------------------
 def _resolve_tensorflow_dir() -> Path:
+    from .gcs_cache import is_cache_valid_by_patterns
+
     logger.info("Resolving tensorflow model directory...")
     if _GCS_BUCKET:
         gcs_dest = Path.cwd() / "models_tensorflow/gcp_download"
+        if is_cache_valid_by_patterns(gcs_dest, list(_MODEL_FILE_PATTERNS.values())):
+            return gcs_dest
         try:
             _download_from_gcs_tensorflow(gcs_dest)
             return gcs_dest

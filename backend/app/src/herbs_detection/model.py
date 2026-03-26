@@ -47,11 +47,15 @@ def _resolve_model_dir() -> Path:
          - MODEL_PATH env var
          - backend/app/models/ relative to the source tree
     """
+    from .gcs_cache import is_cache_valid
+
     # ── 1. Try GCS first ─────────────────────────────────────────────────
     logger.info("Resolving model directory...")
     logger.info("_GCS_BUCKET = '{}'", _GCS_BUCKET)
     if _GCS_BUCKET:
         gcs_dest = Path.cwd() / "models/gcp_download"
+        if is_cache_valid(gcs_dest, _MODEL_FILES):
+            return gcs_dest
         try:
             _download_from_gcs(gcs_dest)
             return gcs_dest
