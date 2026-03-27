@@ -7,6 +7,7 @@ models_tensorflow/
 !models/.gitkeep
 data/
 notebooks/dataset_aromatic_duckduckgo/
+notebooks/dataset_test/
 
 # Env
 .env

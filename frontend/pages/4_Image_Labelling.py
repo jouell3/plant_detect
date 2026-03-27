@@ -164,7 +164,7 @@ for row in range(GRID_ROWS):
         label = st.session_state.labels.get(key, "not_selected")
 
         with cols[col_idx]:
-            st.image(file["bytes"], width=None, caption=file["name"])
+            st.image(file["bytes"], width="stretch", caption=file["name"])
 
             is_good = label == "good"
             btn_label = "✅ Good" if is_good else "○ Keep?"
