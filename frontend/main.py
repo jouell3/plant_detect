@@ -90,6 +90,6 @@ st.caption("""• Modèle : ResNet18 et EfficientNet B3
            • Déploiement : Google Cloud Run  
            • Stockage : Google Cloud Storage    
            • Dataset : 24000+ images d'herbes aromatiques réelles (iNaturalist)     
-           • Auteur : Jimmy OUELLET, Jaimes DE SOUSA GOMES, Thoams HEBERT, Edouard STEINER    
+           • Auteurs : Jimmy OUELLET, Jaimes DE SOUSA GOMES, Thomas HEBERT, Edouard STEINER    
            • Code source : [GitHub](https://github.com/jimmyouellet/plant-detect)
            """)

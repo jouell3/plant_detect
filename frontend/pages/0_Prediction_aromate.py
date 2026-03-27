@@ -182,6 +182,7 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
         "models_used": models_used,
         "top_species": top_species,
         "mean_confidence": mean_confidence,
+        "good_models": good_models,
         "uploaded_name": uploaded_file.name,
         "uploaded_bytes": file_bytes,
     }
@@ -211,6 +212,7 @@ if prediction:
     models_used = prediction["models_used"]
     top_species = prediction["top_species"]
     mean_confidence = prediction["mean_confidence"]
+    good_models = prediction["good_models"]
     top_species_fr = FICHES.get(_normalize_species_key(top_species), {}).get("nom_fr", top_species)
 
     # ── Display ───────────────────────────────────────────────────────────
