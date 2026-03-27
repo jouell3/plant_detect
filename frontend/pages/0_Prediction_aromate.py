@@ -48,6 +48,11 @@ def _normalize_species_key(value: str) -> str:
     return (value or "").strip().lower().replace("-", " ")
 
 
+def _display_species_name(species: str) -> str:
+    fiche = FICHES.get(_normalize_species_key(species), {})
+    return fiche.get("nom_fr", species)
+
+
 def _generate_recipe_prompt(dish_name: str, herb_name: str) -> str:
     """Generate a detailed recipe prompt for an AI chat."""
     return f"Donne-moi une recette complète et détaillée pour {dish_name} en utilisant du {herb_name.lower()} frais. Inclus les ingrédients, les instructions étape par étape, et les conseils de cuisson."
@@ -307,7 +312,7 @@ if prediction:
                     color = confidence_color(confidence)
 
                     st.markdown(
-                        f"<p style='font-size:1.4rem; font-weight:700; margin:0'>{species}</p>"
+                        f"<p style='font-size:1.4rem; font-weight:700; margin:0'>{_display_species_name(species)}</p>"
                         f"<p style='color:{color}; font-size:1.1rem; margin:4px 0 16px'>"
                         f"{confidence:.0%} confidence</p>",
                         unsafe_allow_html=True,
@@ -316,5 +321,5 @@ if prediction:
                     st.markdown("**Top 3**")
                     for rank, pred in enumerate(data[key], 1):
                         bar_pct = int(pred["confidence"] * 100)
-                        st.markdown(f"**{rank}. {pred['species']}** — {pred['confidence']:.0%}")
+                        st.markdown(f"**{rank}. {_display_species_name(pred['species'])}** — {pred['confidence']:.0%}")
                         st.progress(bar_pct)

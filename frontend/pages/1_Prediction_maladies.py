@@ -46,6 +46,11 @@ def _normalize_species_key(value: str) -> str:
     return (value or "").strip().lower().replace("-", " ")
 
 
+def _display_illness_name(illness: str) -> str:
+    fiche = FICHES.get(illness, {})
+    return fiche.get("nom_maladie_fr", illness)
+
+
 # ---------------------------------------------------------------------------
 # Sidebar — prediction history
 # ---------------------------------------------------------------------------
@@ -233,7 +238,7 @@ if prediction:
                     color = confidence_color(confidence)
 
                     st.markdown(
-                        f"<p style='font-size:1.4rem; font-weight:700; margin:0'>{species}</p>"
+                        f"<p style='font-size:1.4rem; font-weight:700; margin:0'>{_display_illness_name(species)}</p>"
                         f"<p style='color:{color}; font-size:1.1rem; margin:4px 0 16px'>"
                         f"{confidence:.0%} confidence</p>",
                         unsafe_allow_html=True,
@@ -242,5 +247,5 @@ if prediction:
                     st.markdown("**Top 3**")
                     for rank, pred in enumerate(data[key], 1):
                         bar_pct = int(pred["confidence"] * 100)
-                        st.markdown(f"**{rank}. {pred['illness']}** — {pred['confidence']:.0%}")
+                        st.markdown(f"**{rank}. {_display_illness_name(pred['illness'])}** — {pred['confidence']:.0%}")
                         st.progress(bar_pct)
