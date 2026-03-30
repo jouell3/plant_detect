@@ -4,6 +4,7 @@ from pathlib import Path
 
 import streamlit as st
 
+from i18n import get_language, render_language_selector
 # Local imports for validation
 from utils import validate_images_batch, show_validation_errors, show_validation_summary
 
@@ -67,6 +68,11 @@ if "labels" not in st.session_state:
 if "label_uploader_key" not in st.session_state:
     st.session_state.label_uploader_key = 0
 
+with st.sidebar:
+    render_language_selector()
+
+lang = get_language()
+
 # ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
@@ -76,40 +82,52 @@ with st.sidebar:
         total = len(st.session_state.label_image_files)
         good = sum(1 for v in st.session_state.labels.values() if v == "good")
         labeled = len(st.session_state.labels)
-        st.metric("Total images", total)
-        st.metric("Labeled", labeled)
-        st.metric("Good", good)
+        st.metric("Total images" if lang == "en" else "Total images", total)
+        st.metric("Labeled" if lang == "en" else "Labelees", labeled)
+        st.metric("Good" if lang == "en" else "Bonnes", good)
         if st.session_state.labels:
             st.download_button(
-                "⬇ Download labels CSV",
+                "⬇ Download labels CSV" if lang == "en" else "⬇ Telecharger le CSV des labels",
                 data=labels_to_csv(st.session_state.labels),
                 file_name="labels.csv",
                 mime="text/csv",
                 use_container_width=True,
             )
     else:
-        st.info("Load images to start.")
+        st.info("Load images to start." if lang == "en" else "Chargez des images pour commencer.")
 
 # ---------------------------------------------------------------------------
 # Header + file inputs
 # ---------------------------------------------------------------------------
-st.title("Image Labeling")
+st.title("Image Labeling" if lang == "en" else "Labellisation d'images")
 
-st.markdown("Vous pouvez parcourir les images de votre dataset par dossier, et selectionner les images qui serviront à l'entraînement de votre modèle. Les labels pouront être exporter dans un fichier CSV réutilisable pour entraîner ou ré-entraîner votre modèle.")
+st.markdown(
+    "Browse images from your dataset folders and select the ones that will be used to train your model. "
+    "Labels can be exported to a reusable CSV file for training or retraining."
+    if lang == "en"
+    else "Vous pouvez parcourir les images de votre dataset par dossier, et selectionner les images qui serviront a l'entrainement de votre modele. "
+    "Les labels pourront etre exportes dans un fichier CSV reutilisable pour entrainer ou re-entrainer votre modele."
+)
 
-st.markdown("Pour commencer, uploadez vos images (format .jpg ou .jpeg) via le bouton ci-dessous. Vous pouvez également uploader un fichier CSV de labels déjà existant pour pré-remplir les sélections (optionnel).")  
+st.markdown(
+    "To begin, upload your images (.jpg or .jpeg) using the button below. "
+    "You can also upload an existing labels CSV to pre-fill selections (optional)."
+    if lang == "en"
+    else "Pour commencer, uploadez vos images (format .jpg ou .jpeg) via le bouton ci-dessous. "
+    "Vous pouvez egalement uploader un fichier CSV de labels deja existant pour pre-remplir les selections (optionnel)."
+)
 
 col_path, col_btn = st.columns([5, 1])
 with col_path:
     uploaded_images = st.file_uploader(
-        label="Upload images (.jpg / .jpeg)",
+        label="Upload images (.jpg / .jpeg)" if lang == "en" else "Uploader des images (.jpg / .jpeg)",
         label_visibility="collapsed",
         accept_multiple_files=True,
         type=["jpg", "jpeg"],
         key=f"img_uploader_{st.session_state.label_uploader_key}",
     )
     uploaded_labels = st.file_uploader(
-        label="Label CSV (optional)",
+        label="Labels CSV (optional)" if lang == "en" else "CSV de labels (optionnel)",
         label_visibility="collapsed",
         type=["csv"],
         key=f"csv_uploader_{st.session_state.label_uploader_key}",
@@ -119,7 +137,7 @@ with col_btn:
 
 if load_clicked:
     if not uploaded_images:
-        st.error("Veuillez uploader au moins une image.")
+        st.error("Please upload at least one image." if lang == "en" else "Veuillez uploader au moins une image.")
     else:
         # Validate images before processing
         valid_files, invalid_files = validate_images_batch(uploaded_images)
@@ -167,7 +185,7 @@ for row in range(GRID_ROWS):
             st.image(file["bytes"], width="stretch", caption=file["name"])
 
             is_good = label == "good"
-            btn_label = "✅ Good" if is_good else "○ Keep?"
+            btn_label = "✅ Good" if is_good else ("○ Keep?" if lang == "en" else "○ Garder ?")
             btn_type = "primary" if is_good else "secondary"
 
             if st.button(
@@ -193,12 +211,12 @@ with p_left:
 with p_mid:
     end_img = min(start + PAGE_SIZE, len(st.session_state.label_image_files))
     st.metric(
-        label="Progression",
+        label="Progress" if lang == "en" else "Progression",
         value=f"Page {page + 1} / {total_pages}",
         delta=f"images {start + 1}-{end_img}",
     )
     target_page = st.number_input(
-        "Aller à la page",
+        "Go to page" if lang == "en" else "Aller a la page",
         min_value=1,
         max_value=total_pages,
         value=page + 1,
