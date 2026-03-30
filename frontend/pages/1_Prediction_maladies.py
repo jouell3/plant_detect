@@ -10,6 +10,7 @@ import streamlit as st
 from loguru import logger
 from PIL import Image
 
+from i18n import get_language, render_language_selector
 from styles import COLORS, confidence_color, confidence_badge, styled_info_card, page_header
 from utils import post_with_retries, validate_image_file
 
@@ -48,23 +49,37 @@ def _normalize_species_key(value: str) -> str:
 
 def _display_illness_name(illness: str) -> str:
     fiche = FICHES.get(illness, {})
+    if get_language() == "en":
+        return fiche.get("nom_en", illness)
     return fiche.get("nom_maladie_fr", illness)
+
+
+def _fiche_value(fiche: dict, key: str, language: str) -> str:
+    if language == "en":
+        return fiche.get(f"{key}_en", fiche.get(key, ""))
+    return fiche.get(key, "")
 
 
 # ---------------------------------------------------------------------------
 # Sidebar — prediction history
 # ---------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### Historique")
+    render_language_selector()
+    lang = get_language()
+    st.markdown("### History" if lang == "en" else "### Historique")
     if not st.session_state.prediction_history:
-        st.caption("Aucune prédiction pour le moment.")
+        st.caption("No predictions yet." if lang == "en" else "Aucune prediction pour le moment.")
     else:
-        show_history = st.checkbox("Afficher l'historique", value=True)
-        if st.button("Effacer", use_container_width=True):
+        show_history = st.checkbox("Show history" if lang == "en" else "Afficher l'historique", value=True)
+        if st.button("Clear" if lang == "en" else "Effacer", use_container_width=True):
             st.session_state.prediction_history = []
             st.rerun()
         if show_history:
-            st.caption(f"{len(st.session_state.prediction_history)} / {MAX_HISTORY_ITEMS} éléments")
+            st.caption(
+                f"{len(st.session_state.prediction_history)} / {MAX_HISTORY_ITEMS} items"
+                if lang == "en"
+                else f"{len(st.session_state.prediction_history)} / {MAX_HISTORY_ITEMS} elements"
+            )
             for entry in reversed(st.session_state.prediction_history):
                 conf = entry["confidence"]
                 color = confidence_color(conf)
@@ -77,9 +92,20 @@ with st.sidebar:
                 )
                 st.divider()
 
-st.title("🌿 Predicteur de maladies de pommier ou tomate")
-st.markdown("Vous pouvez soit choisir une image dans vos dossiers, soit prendre une photo directement avec votre caméra. Le modèle de reconnaissance de maladie de plantes vous donnera une prédiction en temps réel avec un score de confiance. N'hésitez pas à tester plusieurs images pour voir les résultats !")
-st.markdown("Pour predire plusieurs images à la fois, rendez-vous dans l'onglet 'Batch Predict'.")
+lang = get_language()
+st.title("🌿 Apple and Tomato Disease Predictor" if lang == "en" else "🌿 Predicteur de maladies de pommier ou tomate")
+st.markdown(
+    "Choose an image from your files or take a photo directly with your camera. "
+    "The plant disease recognition model returns a real-time prediction with confidence."
+    if lang == "en"
+    else "Vous pouvez soit choisir une image dans vos dossiers, soit prendre une photo directement avec votre camera. "
+    "Le modele de reconnaissance de maladie de plantes vous donnera une prediction en temps reel avec un score de confiance."
+)
+st.markdown(
+    "To predict multiple images at once, go to the 'Batch Predict' page."
+    if lang == "en"
+    else "Pour predire plusieurs images a la fois, rendez-vous dans l'onglet 'Batch Predict'."
+)
 
 # ---------------------------------------------------------------------------
 # Input
@@ -90,7 +116,7 @@ uploaded_file = None
 
 with tab_upload:
     f = st.file_uploader(
-        "Choisissez une image (jpg/jpeg/png)",
+        "Choose an image (jpg/jpeg/png)" if lang == "en" else "Choisissez une image (jpg/jpeg/png)",
         type=["jpg", "jpeg", "png"],
         accept_multiple_files=False,
         label_visibility="collapsed",
@@ -99,7 +125,7 @@ with tab_upload:
         uploaded_file = f
 
 with tab_camera:
-    photo = st.camera_input("Prenez une photo", label_visibility="collapsed")
+    photo = st.camera_input("Take a photo" if lang == "en" else "Prenez une photo", label_visibility="collapsed")
     if photo:
         uploaded_file = photo
 
@@ -122,10 +148,15 @@ if not is_valid:
     st.stop()
 
 st.divider()
-st.markdown("##### Quand vous serez prêt, vous pouvez cliquer sur le bouton ci-dessous pour lancer la prédiction. En fonction de la charge du serveur et de la complexité de l'image, cela peut prendre jusqu'à 1 minute. Merci pour votre patience !")
+st.markdown(
+    "##### When you are ready, click the button below to launch prediction. This may take up to 1 minute depending on server load and image complexity."
+    if lang == "en"
+    else "##### Quand vous serez pret, vous pouvez cliquer sur le bouton ci-dessous pour lancer la prediction. "
+    "En fonction de la charge du serveur et de la complexite de l'image, cela peut prendre jusqu'a 1 minute. Merci pour votre patience !"
+)
 
 if st.button("🔍 Identify", type="primary", use_container_width=False):
-    with st.spinner("Analyse en cours (~30-60s)…"):
+    with st.spinner("Analyzing (~30-60s)..." if lang == "en" else "Analyse en cours (~30-60s)..."):
         try:
             logger.info("predict_illness | file={}", uploaded_file.name)
             file_bytes = uploaded_file.getvalue()
@@ -137,14 +168,14 @@ if st.button("🔍 Identify", type="primary", use_container_width=False):
                 log_message="predict_illness failed",
             )
         except requests.exceptions.ConnectionError:
-            st.error("Impossible de joindre l'API. Vérifiez que le service est en ligne.")
+            st.error("Unable to reach the API. Please verify the service is online." if lang == "en" else "Impossible de joindre l'API. Verifiez que le service est en ligne.")
             logger.error("API connection error | url={}", API_URL)
             st.stop()
         except requests.exceptions.Timeout:
-            st.error("Le service met trop de temps à répondre. Réessayez dans quelques secondes.")
+            st.error("The service is taking too long to respond. Please retry in a few seconds." if lang == "en" else "Le service met trop de temps a repondre. Reessayez dans quelques secondes.")
             st.stop()
         except requests.exceptions.HTTPError as e:
-            st.error(f"Erreur API: {e}")
+            st.error((f"API error: {e}") if lang == "en" else (f"Erreur API: {e}"))
             logger.error("API HTTP error | {}", e)
             st.stop()
 
@@ -184,7 +215,7 @@ if prediction:
     top_confidence = prediction["top_confidence"]
 
     # ── Display ───────────────────────────────────────────────────────────
-    st.subheader("Résultats")
+    st.subheader("Results" if lang == "en" else "Resultats")
     _, col_img, col_fiche, _ = st.columns([0.2, 1, 3, 0.2], gap="large", vertical_alignment="bottom")
 
     with col_img:
@@ -201,38 +232,38 @@ if prediction:
         if fiche:
             nom_fr_md = f"[{fiche['nom_maladie_fr']}]({fiche['wikipedia_fr']})" if fiche.get("wikipedia_fr") else fiche['nom_maladie_fr']
             nom_en_md = f"[{fiche['nom_en']}]({fiche['wikipedia_en']})" if fiche.get("wikipedia_en") else fiche['nom_en']
-            st.markdown(f"### À propos — {nom_fr_md} (*{nom_en_md}*)")
+            st.markdown(f"### About — {nom_en_md} (*{nom_fr_md}*)" if lang == "en" else f"### A propos - {nom_fr_md} (*{nom_en_md}*)")
             
 
             info_dict = {
-                "🦠 Cause possible": fiche['cause'],
-                "🩺 Traitement curatif": fiche['traitement_curatif'],
-                "💊 Traitement préventif": fiche['traitement_preventif'],
-                "🛡️ Saison / Gravité": fiche['saison_gravite'],
+                ("🦠 Possible cause" if lang == "en" else "🦠 Cause possible"): _fiche_value(fiche, "cause", lang),
+                ("🩺 Curative treatment" if lang == "en" else "🩺 Traitement curatif"): _fiche_value(fiche, "traitement_curatif", lang),
+                ("💊 Preventive treatment" if lang == "en" else "💊 Traitement preventif"): _fiche_value(fiche, "traitement_preventif", lang),
+                ("🛡️ Season / Severity" if lang == "en" else "🛡️ Saison / Gravite"): _fiche_value(fiche, "saison_gravite", lang),
             }
-            styled_info_card("Plus d'informations", info_dict)
+            styled_info_card("More information" if lang == "en" else "Plus d'informations", info_dict)
         else:
             st.markdown(f"### {top_illness}")
-            st.markdown("Aucune fiche disponible pour cette maladie.")
+            st.markdown("No profile is available for this disease." if lang == "en" else "Aucune fiche disponible pour cette maladie.")
             wiki_search = f"https://fr.wikipedia.org/wiki/Special:Search?search={top_illness.replace(' ', '+')}"
-            st.markdown(f"[Rechercher sur Wikipedia]({wiki_search})")
+            st.markdown(f"[Search on Wikipedia]({wiki_search})" if lang == "en" else f"[Rechercher sur Wikipedia]({wiki_search})")
 
         
         if top_confidence < 0.50:
-            st.info("Confiance faible: essayez une photo plus nette, une meilleure lumière et un cadrage plus serré sur la plante.")
+            st.info("Low confidence: try a sharper photo, better lighting, and a closer crop on the leaf." if lang == "en" else "Confiance faible: essayez une photo plus nette, une meilleure lumiere et un cadrage plus serre sur la plante.")
             
     # ── more information on the predictions ─────────────────────────────────────────────────────
     st.text(" ")  # Spacer
     st.divider()
-    st.markdown("### Détails des prédictions")
+    st.markdown("### Prediction Details" if lang == "en" else "### Details des predictions")
     
-    with st.expander("Voir les détails des prédictions"):
+    with st.expander("View prediction details" if lang == "en" else "Voir les details des predictions"):
         models_list = list(models_used)
         for i in range(0, len(models_list), 2):
             grid_cols = st.columns(2)
             for j, key in enumerate(models_list[i:i+2]):
                 with grid_cols[j]:
-                    st.markdown(f"#### **Modèle: {key.upper()}**")
+                    st.markdown(f"#### **Model: {key.upper()}**" if lang == "en" else f"#### **Modele: {key.upper()}**")
                     species    = data[key][0]["illness"]
                     confidence = data[key][0]["confidence"]
                     color = confidence_color(confidence)

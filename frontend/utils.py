@@ -10,6 +10,8 @@ import requests
 import streamlit as st
 from loguru import logger
 
+from i18n import get_language
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Image validation and feedback (French-first)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -18,6 +20,76 @@ VALID_FORMATS = {"jpg", "jpeg", "png"}
 MIN_IMAGE_WIDTH = 100
 MIN_IMAGE_HEIGHT = 100
 MAX_FILE_SIZE_MB = 50
+
+
+_MESSAGES = {
+    "no_file": {
+        "fr": "Aucun fichier fourni.",
+        "en": "No file was provided.",
+    },
+    "unsupported_format": {
+        "fr": "Format non supporte: {ext}. Utilisez JPG, JPEG ou PNG.",
+        "en": "Unsupported format: {ext}. Use JPG, JPEG, or PNG.",
+    },
+    "file_too_large": {
+        "fr": "Fichier trop volumineux: {size:.1f} MB (max {max_size} MB).",
+        "en": "File is too large: {size:.1f} MB (max {max_size} MB).",
+    },
+    "invalid_image": {
+        "fr": "Image corrompue ou non valide: {error}",
+        "en": "Image is corrupted or invalid: {error}",
+    },
+    "cannot_read_dimensions": {
+        "fr": "Impossible de lire les dimensions de l'image.",
+        "en": "Unable to read image dimensions.",
+    },
+    "image_too_small": {
+        "fr": "Image trop petite: {width}x{height}px (min {min_w}x{min_h}px).",
+        "en": "Image is too small: {width}x{height}px (min {min_w}x{min_h}px).",
+    },
+    "rejected_files": {
+        "fr": "⚠️ {count} fichier(s) rejete(s)",
+        "en": "⚠️ {count} rejected file(s)",
+    },
+    "all_valid": {
+        "fr": "✓ {total} image(s) valide(s).",
+        "en": "✓ {total} valid image(s).",
+    },
+    "partially_valid": {
+        "fr": "✓ {valid}/{total} image(s) valide(s). {rejected} rejetee(s).",
+        "en": "✓ {valid}/{total} valid image(s). {rejected} rejected.",
+    },
+    "none_valid": {
+        "fr": "✗ Aucune image valide parmi {total} fichier(s).",
+        "en": "✗ No valid image found among {total} file(s).",
+    },
+    "pending_lot": {
+        "fr": "Chargement des images restantes de ce lot...",
+        "en": "Loading the remaining images for this batch...",
+    },
+    "lot_title": {
+        "fr": "### Lot {num} ({loaded}/{total})",
+        "en": "### Batch {num} ({loaded}/{total})",
+    },
+    "progress_running": {
+        "fr": "{loaded} / {total} images affichees - requetes sequentielles en cours ({done}/{all_batches} lots termines, erreurs: {errors}).",
+        "en": "{loaded} / {total} images displayed - sequential requests in progress ({done}/{all_batches} batches completed, errors: {errors}).",
+    },
+    "progress_interrupted": {
+        "fr": "Chargement interrompu: {loaded}/{total} images recues. Certaines requetes ont echoue; relancez uniquement les lots echoues.",
+        "en": "Loading interrupted: {loaded}/{total} images received. Some requests failed; retry only failed batches.",
+    },
+    "progress_done": {
+        "fr": "Toutes les {total} images ont ete chargees.",
+        "en": "All {total} images have been loaded.",
+    },
+}
+
+
+def _msg(key: str, **kwargs) -> str:
+    lang = get_language()
+    template = _MESSAGES.get(key, {}).get(lang) or _MESSAGES.get(key, {}).get("fr") or key
+    return template.format(**kwargs)
 
 
 def validate_image_file(file_obj, name: str = None) -> tuple[bool, str | None]:
@@ -32,7 +104,7 @@ def validate_image_file(file_obj, name: str = None) -> tuple[bool, str | None]:
                                    If invalid, is_valid is False and error_message is French feedback.
     """
     if not file_obj:
-        return False, "Aucun fichier fourni."
+        return False, _msg("no_file")
     
     name = name or file_obj.name
     file_size_mb = file_obj.size / (1024 * 1024)
@@ -40,11 +112,11 @@ def validate_image_file(file_obj, name: str = None) -> tuple[bool, str | None]:
     # Check file extension
     ext = Path(file_obj.name).suffix.lower().lstrip(".")
     if ext not in VALID_FORMATS:
-        return False, f"Format non supporté: {ext}. Utilisez JPG, JPEG ou PNG."
+        return False, _msg("unsupported_format", ext=ext)
     
     # Check file size
     if file_size_mb > MAX_FILE_SIZE_MB:
-        return False, f"Fichier trop volumineux: {file_size_mb:.1f} MB (max {MAX_FILE_SIZE_MB} MB)."
+        return False, _msg("file_too_large", size=file_size_mb, max_size=MAX_FILE_SIZE_MB)
     
     # Try to load as image to check integrity
     try:
@@ -52,18 +124,18 @@ def validate_image_file(file_obj, name: str = None) -> tuple[bool, str | None]:
         img = Image.open(io.BytesIO(file_bytes))
         img.verify()
     except Exception as e:
-        return False, f"Image corrompue ou non valide: {str(e)}"
+        return False, _msg("invalid_image", error=str(e))
     
     # Re-open after verify (verify() closes the file)
     try:
         img = Image.open(io.BytesIO(file_bytes))
         width, height = img.size
     except Exception:
-        return False, "Impossible de lire les dimensions de l'image."
+        return False, _msg("cannot_read_dimensions")
     
     # Check minimum dimensions
     if width < MIN_IMAGE_WIDTH or height < MIN_IMAGE_HEIGHT:
-        return False, f"Image trop petite: {width}×{height}px (min {MIN_IMAGE_WIDTH}×{MIN_IMAGE_HEIGHT}px)."
+        return False, _msg("image_too_small", width=width, height=height, min_w=MIN_IMAGE_WIDTH, min_h=MIN_IMAGE_HEIGHT)
     
     return True, None
 
@@ -101,7 +173,7 @@ def show_validation_errors(invalid_files: list) -> None:
     if not invalid_files:
         return
     
-    with st.expander(f"⚠️ {len(invalid_files)} fichier(s) rejeté(s)", expanded=False):
+    with st.expander(_msg("rejected_files", count=len(invalid_files)), expanded=False):
         for filename, error_msg in invalid_files:
             st.warning(f"**{filename}**: {error_msg}")
 
@@ -114,11 +186,11 @@ def show_validation_summary(valid_count: int, total_count: int) -> None:
         total_count: Total files processed
     """
     if valid_count == total_count:
-        st.success(f"✓ {total_count} image(s) valide(s).")
+        st.success(_msg("all_valid", total=total_count))
     elif valid_count > 0:
-        st.warning(f"✓ {valid_count}/{total_count} image(s) valide(s). {total_count - valid_count} rejeté(e)s.")
+        st.warning(_msg("partially_valid", valid=valid_count, total=total_count, rejected=total_count - valid_count))
     else:
-        st.error(f"✗ Aucune image valide parmi {total_count} fichier(s).")
+        st.error(_msg("none_valid", total=total_count))
 
 
 def get_streamlit_session_id() -> str:
@@ -223,17 +295,18 @@ def render_batch_lot_grids(
     page_size: int,
     grid_cols: int,
     render_item_fn: Callable[[dict, dict], None],
-    pending_caption: str = "Chargement des images restantes de ce lot…",
+    pending_caption: str | None = None,
 ) -> None:
     """Render loaded batch predictions as chunked lots with a shared layout."""
     total_files = len(all_files)
+    local_pending = pending_caption or _msg("pending_lot")
     for chunk_start in range(0, total_files, page_size):
         chunk_end = min(chunk_start + page_size, total_files)
         chunk = all_files[chunk_start:chunk_end]
         chunk_loaded = [f for f in chunk if f["name"] in batch_results]
         lot_num = (chunk_start // page_size) + 1
 
-        st.markdown(f"### Lot {lot_num} ({len(chunk_loaded)}/{len(chunk)})")
+        st.markdown(_msg("lot_title", num=lot_num, loaded=len(chunk_loaded), total=len(chunk)))
 
         for row_idx in range(0, len(chunk_loaded), grid_cols):
             cols = st.columns(grid_cols)
@@ -242,24 +315,25 @@ def render_batch_lot_grids(
                     render_item_fn(file, batch_results[file["name"]])
 
         if len(chunk_loaded) < len(chunk):
-            st.caption(pending_caption)
+            st.caption(local_pending)
         st.divider()
 
 
 def render_batch_progress_footer(*, loaded_total: int, total_files: int, is_running: bool, progress: dict) -> None:
     """Render standard progress footer for sequential sub-batch loading."""
     if is_running:
-        st.caption(
-            f"{loaded_total} / {total_files} images affichées — "
-            f"requêtes séquentielles en cours ({progress['done']}/{progress['total']} lots terminés, erreurs: {progress['errors']})."
-        )
+        st.caption(_msg(
+            "progress_running",
+            loaded=loaded_total,
+            total=total_files,
+            done=progress["done"],
+            all_batches=progress["total"],
+            errors=progress["errors"],
+        ))
     elif loaded_total < total_files:
-        st.warning(
-            f"Chargement interrompu: {loaded_total}/{total_files} images reçues. "
-            "Certaines requêtes ont échoué; relancez uniquement les lots échoués."
-        )
+        st.warning(_msg("progress_interrupted", loaded=loaded_total, total=total_files))
     else:
-        st.caption(f"Toutes les {total_files} images ont été chargées.")
+        st.caption(_msg("progress_done", total=total_files))
 
 
 def post_with_retries(
