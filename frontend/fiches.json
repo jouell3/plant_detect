@@ -5,11 +5,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Ang%C3%A9lique_(plante)",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Angelica",
     "description": "Plante aromatique aux tiges parfumées, utilisée en confiserie et en herboristerie.",
-    "usages": ["liqueurs", "confiseries", "digestion"],
+    "usages": [
+      "liqueurs",
+      "confiseries",
+      "digestion"
+    ],
     "arome": "doux, légèrement musqué",
     "culture": "Sol riche et humide, mi-ombre, climat frais.",
     "toxicite": "Les graines et racines peuvent être photosensibilisantes en grande quantité.",
-    "compatibilites": ["rhubarbe", "fruits confits", "liqueurs"]
+    "compatibilites": [
+      "rhubarbe",
+      "fruits confits",
+      "liqueurs"
+    ],
+    "description_en": "Aromatic plant with fragrant stems, used in confectionery and herbalism.",
+    "arome_en": "sweet, slightly musky",
+    "culture_en": "Rich, moist soil, partial shade, cool climate.",
+    "toxicite_en": "Seeds and roots can be photosensitizing in large quantities.",
+    "usages_en": [
+      "liquors",
+      "confectionery",
+      "digestion"
+    ],
+    "compatibilites_en": [
+      "rhubarb",
+      "candied fruit",
+      "liquors"
+    ]
   },
   "basil": {
     "nom_fr": "Basilic",
@@ -17,11 +39,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Basilic_(plante)",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Basil",
     "description": "Herbe incontournable de la cuisine méditerranéenne.",
-    "usages": ["pesto", "salades", "plats italiens"],
+    "usages": [
+      "pesto",
+      "salades",
+      "plats italiens"
+    ],
     "arome": "frais, poivré",
     "culture": "Plein soleil, sol drainé, arrosages réguliers.",
     "toxicite": "Aucune toxicité notable.",
-    "compatibilites": ["tomate", "ail", "mozzarella"]
+    "compatibilites": [
+      "tomate",
+      "ail",
+      "mozzarella"
+    ],
+    "description_en": "Essential herb in Mediterranean cuisine.",
+    "arome_en": "fresh, peppery",
+    "culture_en": "Full sun, drained soil, regular watering.",
+    "toxicite_en": "No notable toxicity.",
+    "usages_en": [
+      "pesto",
+      "salads",
+      "Italian dishes"
+    ],
+    "compatibilites_en": [
+      "tomato",
+      "garlic",
+      "Mozzarella"
+    ]
   },
   "borage": {
     "nom_fr": "Bourrache",
@@ -29,11 +73,31 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Bourrache",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Borage",
     "description": "Plante aux fleurs bleues comestibles, au goût rappelant le concombre.",
-    "usages": ["salades", "infusions"],
+    "usages": [
+      "salades",
+      "infusions"
+    ],
     "arome": "léger, frais",
     "culture": "Sol léger, exposition ensoleillée.",
     "toxicite": "Les feuilles contiennent des alcaloïdes en grande quantité, à consommer modérément.",
-    "compatibilites": ["salades vertes", "poissons", "boissons fraîches"]
+    "compatibilites": [
+      "salades vertes",
+      "poissons",
+      "boissons fraîches"
+    ],
+    "description_en": "Plant with edible blue flowers, with a taste reminiscent of cucumber.",
+    "arome_en": "light, fresh",
+    "culture_en": "Light soil, sunny exposure.",
+    "toxicite_en": "The leaves contain alkaloids in large quantities, consume in moderation.",
+    "usages_en": [
+      "salads",
+      "infusions"
+    ],
+    "compatibilites_en": [
+      "green salads",
+      "fish",
+      "cold drinks"
+    ]
   },
   "chamomile": {
     "nom_fr": "Camomille",
@@ -41,11 +105,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Camomille",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Chamomile",
     "description": "Plante médicinale apaisante, souvent utilisée en infusion.",
-    "usages": ["infusions", "calmant", "digestion"],
+    "usages": [
+      "infusions",
+      "calmant",
+      "digestion"
+    ],
     "arome": "doux, floral",
     "culture": "Soleil, sol léger et bien drainé.",
     "toxicite": "Peut provoquer des allergies chez les personnes sensibles aux astéracées.",
-    "compatibilites": ["miel", "citron", "pâtisseries"]
+    "compatibilites": [
+      "miel",
+      "citron",
+      "pâtisseries"
+    ],
+    "description_en": "Soothing medicinal plant, often used as an infusion.",
+    "arome_en": "sweet, floral",
+    "culture_en": "Sun, light and well-drained soil.",
+    "toxicite_en": "May cause allergies in people sensitive to Asteraceae.",
+    "usages_en": [
+      "infusions",
+      "calming",
+      "digestion"
+    ],
+    "compatibilites_en": [
+      "Honey",
+      "lemon",
+      "pastries"
+    ]
   },
   "chives": {
     "nom_fr": "Ciboulette",
@@ -53,11 +139,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Ciboulette",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Chives",
     "description": "Herbe fraîche au goût d’oignon doux.",
-    "usages": ["omelettes", "salades", "sauces"],
+    "usages": [
+      "omelettes",
+      "salades",
+      "sauces"
+    ],
     "arome": "oignon léger",
     "culture": "Soleil ou mi-ombre, sol frais.",
     "toxicite": "Sans toxicité notable.",
-    "compatibilites": ["œufs", "pommes de terre", "fromage frais"]
+    "compatibilites": [
+      "œufs",
+      "pommes de terre",
+      "fromage frais"
+    ],
+    "description_en": "Fresh herb with a sweet onion flavor.",
+    "arome_en": "light onion",
+    "culture_en": "Sun or partial shade, cool soil.",
+    "toxicite_en": "Without significant toxicity.",
+    "usages_en": [
+      "omelets",
+      "salads",
+      "sauces"
+    ],
+    "compatibilites_en": [
+      "eggs",
+      "potatoes",
+      "fresh cheese"
+    ]
   },
   "coriander": {
     "nom_fr": "Coriandre",
@@ -65,11 +173,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Coriandre",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Coriander",
     "description": "Herbe très aromatique utilisée dans de nombreuses cuisines du monde.",
-    "usages": ["cuisine asiatique", "mexicaine", "salades"],
+    "usages": [
+      "cuisine asiatique",
+      "mexicaine",
+      "salades"
+    ],
     "arome": "agrumes, herbacé",
     "culture": "Soleil, sol léger, arrosages modérés.",
     "toxicite": "Sans toxicité notable.",
-    "compatibilites": ["citron vert", "poulet", "avocat"]
+    "compatibilites": [
+      "citron vert",
+      "poulet",
+      "avocat"
+    ],
+    "description_en": "Very aromatic herb used in many cuisines around the world.",
+    "arome_en": "citrus, herbaceous",
+    "culture_en": "Sun, light soil, moderate watering.",
+    "toxicite_en": "Without significant toxicity.",
+    "usages_en": [
+      "asian cuisine",
+      "Mexican",
+      "salads"
+    ],
+    "compatibilites_en": [
+      "lime",
+      "chicken",
+      "avocado"
+    ]
   },
   "dill": {
     "nom_fr": "Aneth",
@@ -77,11 +207,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Aneth",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Dill",
     "description": "Herbe fine très utilisée avec le poisson.",
-    "usages": ["poissons", "cornichons", "sauces"],
+    "usages": [
+      "poissons",
+      "cornichons",
+      "sauces"
+    ],
     "arome": "anisé, frais",
     "culture": "Soleil, sol léger et drainé.",
     "toxicite": "Sans toxicité notable.",
-    "compatibilites": ["saumon", "pommes de terre", "yaourt"]
+    "compatibilites": [
+      "saumon",
+      "pommes de terre",
+      "yaourt"
+    ],
+    "description_en": "Fine herb widely used with fish.",
+    "arome_en": "aniseed, fresh",
+    "culture_en": "Sun, light and drained soil.",
+    "toxicite_en": "Without significant toxicity.",
+    "usages_en": [
+      "fish",
+      "pickles",
+      "sauces"
+    ],
+    "compatibilites_en": [
+      "salmon",
+      "potatoes",
+      "yogurt"
+    ]
   },
   "fennel": {
     "nom_fr": "Fenouil",
@@ -89,11 +241,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Fenouil",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Fennel",
     "description": "Plante au goût anisé, utilisée en cuisine et en infusion.",
-    "usages": ["poissons", "salades", "infusions"],
+    "usages": [
+      "poissons",
+      "salades",
+      "infusions"
+    ],
     "arome": "anisé",
     "culture": "Soleil, sol profond et drainé.",
     "toxicite": "Sans toxicité notable.",
-    "compatibilites": ["agrumes", "poisson blanc", "poulet"]
+    "compatibilites": [
+      "agrumes",
+      "poisson blanc",
+      "poulet"
+    ],
+    "description_en": "Plant with aniseed flavor, used in cooking and in infusion.",
+    "arome_en": "aniseed",
+    "culture_en": "Sun, deep and drained soil.",
+    "toxicite_en": "Without significant toxicity.",
+    "usages_en": [
+      "fish",
+      "salads",
+      "infusions"
+    ],
+    "compatibilites_en": [
+      "citrus",
+      "whitefish",
+      "chicken"
+    ]
   },
   "hyssop": {
     "nom_fr": "Hysope",
@@ -101,11 +275,31 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Hysope",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Hyssop",
     "description": "Plante méditerranéenne utilisée en herboristerie et en liqueurs.",
-    "usages": ["liqueurs", "infusions"],
+    "usages": [
+      "liqueurs",
+      "infusions"
+    ],
     "arome": "camphré, floral",
     "culture": "Soleil, sol sec et calcaire.",
     "toxicite": "Huile essentielle neurotoxique à forte dose.",
-    "compatibilites": ["miel", "liqueurs", "plats rustiques"]
+    "compatibilites": [
+      "miel",
+      "liqueurs",
+      "plats rustiques"
+    ],
+    "description_en": "Mediterranean plant used in herbalism and liqueurs.",
+    "arome_en": "camphor, floral",
+    "culture_en": "Sun, dry and limestone soil.",
+    "toxicite_en": "Neurotoxic essential oil in high doses.",
+    "usages_en": [
+      "liquors",
+      "infusions"
+    ],
+    "compatibilites_en": [
+      "Honey",
+      "liquors",
+      "rustic dishes"
+    ]
   },
   "lavender": {
     "nom_fr": "Lavande",
@@ -113,11 +307,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Lavande",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Lavender",
     "description": "Plante très parfumée, utilisée en cuisine et en aromathérapie.",
-    "usages": ["desserts", "infusions", "parfums"],
+    "usages": [
+      "desserts",
+      "infusions",
+      "parfums"
+    ],
     "arome": "floral, sucré",
     "culture": "Soleil, sol sec et drainé.",
     "toxicite": "Huile essentielle irritante en excès.",
-    "compatibilites": ["miel", "chocolat blanc", "abricot"]
+    "compatibilites": [
+      "miel",
+      "chocolat blanc",
+      "abricot"
+    ],
+    "description_en": "Very fragrant plant, used in cooking and aromatherapy.",
+    "arome_en": "floral, sweet",
+    "culture_en": "Sun, dry and drained soil.",
+    "toxicite_en": "Excessive irritant essential oil.",
+    "usages_en": [
+      "desserts",
+      "infusions",
+      "perfumes"
+    ],
+    "compatibilites_en": [
+      "Honey",
+      "white chocolate",
+      "apricot"
+    ]
   },
   "lemongrass": {
     "nom_fr": "Citronnelle",
@@ -125,11 +341,31 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Cymbopogon",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Cymbopogon",
     "description": "Herbe tropicale au parfum citronné, très utilisée en cuisine asiatique.",
-    "usages": ["cuisine thaï", "infusions"],
+    "usages": [
+      "cuisine thaï",
+      "infusions"
+    ],
     "arome": "citronné, frais",
     "culture": "Chaleur, soleil, sol riche.",
     "toxicite": "Huile essentielle irritante.",
-    "compatibilites": ["gingembre", "noix de coco", "poulet"]
+    "compatibilites": [
+      "gingembre",
+      "noix de coco",
+      "poulet"
+    ],
+    "description_en": "Tropical herb with a lemony scent, widely used in Asian cuisine.",
+    "arome_en": "lemony, fresh",
+    "culture_en": "Heat, sun, rich soil.",
+    "toxicite_en": "Irritating essential oil.",
+    "usages_en": [
+      "thai cuisine",
+      "infusions"
+    ],
+    "compatibilites_en": [
+      "ginger",
+      "coconut",
+      "chicken"
+    ]
   },
   "lemonverbena": {
     "nom_fr": "Verveine citronnée",
@@ -137,11 +373,31 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Verveine_citronnelle",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Aloysia_citrodora",
     "description": "Plante très parfumée, idéale en infusion.",
-    "usages": ["infusions", "desserts"],
+    "usages": [
+      "infusions",
+      "desserts"
+    ],
     "arome": "citron intense",
     "culture": "Soleil, sol léger, sensible au gel.",
     "toxicite": "Peut irriter la peau fraîche.",
-    "compatibilites": ["pêche", "citron", "pâtisseries"]
+    "compatibilites": [
+      "pêche",
+      "citron",
+      "pâtisseries"
+    ],
+    "description_en": "Very fragrant plant, ideal in infusion.",
+    "arome_en": "intense lemon",
+    "culture_en": "Sun, light soil, sensitive to frost.",
+    "toxicite_en": "May irritate fresh skin.",
+    "usages_en": [
+      "infusions",
+      "desserts"
+    ],
+    "compatibilites_en": [
+      "peach",
+      "lemon",
+      "pastries"
+    ]
   },
   "lovage": {
     "nom_fr": "Livèche",
@@ -149,11 +405,31 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Liv%C3%A8che",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Lovage",
     "description": "Herbe au goût puissant rappelant le céleri.",
-    "usages": ["bouillons", "plats mijotés"],
+    "usages": [
+      "bouillons",
+      "plats mijotés"
+    ],
     "arome": "céleri, herbacé",
     "culture": "Sol riche, mi-ombre.",
     "toxicite": "Sans toxicité notable.",
-    "compatibilites": ["légumes racines", "poulet", "bouillons"]
+    "compatibilites": [
+      "légumes racines",
+      "poulet",
+      "bouillons"
+    ],
+    "description_en": "Herb with a strong taste reminiscent of celery.",
+    "arome_en": "celery, herbaceous",
+    "culture_en": "Rich soil, partial shade.",
+    "toxicite_en": "Without significant toxicity.",
+    "usages_en": [
+      "broths",
+      "simmered dishes"
+    ],
+    "compatibilites_en": [
+      "root vegetables",
+      "chicken",
+      "broths"
+    ]
   },
   "mint": {
     "nom_fr": "Menthe",
@@ -161,11 +437,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Menthe",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Mentha",
     "description": "Herbe fraîche très polyvalente.",
-    "usages": ["thé", "desserts", "salades"],
+    "usages": [
+      "thé",
+      "desserts",
+      "salades"
+    ],
     "arome": "mentholé, frais",
     "culture": "Sol humide, mi-ombre, très envahissante.",
     "toxicite": "Sans toxicité notable.",
-    "compatibilites": ["chocolat", "agneau", "citron"]
+    "compatibilites": [
+      "chocolat",
+      "agneau",
+      "citron"
+    ],
+    "description_en": "Very versatile fresh herb.",
+    "arome_en": "minty, fresh",
+    "culture_en": "Moist soil, partial shade, very invasive.",
+    "toxicite_en": "Without significant toxicity.",
+    "usages_en": [
+      "tea",
+      "desserts",
+      "salads"
+    ],
+    "compatibilites_en": [
+      "chocolate",
+      "lamb",
+      "lemon"
+    ]
   },
   "mugwort": {
     "nom_fr": "Armoise",
@@ -173,11 +471,29 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Armoise",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Mugwort",
     "description": "Plante traditionnelle utilisée en herboristerie.",
-    "usages": ["infusions", "digestif"],
+    "usages": [
+      "infusions",
+      "digestif"
+    ],
     "arome": "amer, herbacé",
     "culture": "Soleil, sol pauvre.",
     "toxicite": "Peut être neurotoxique en excès.",
-    "compatibilites": ["viandes grasses", "liqueurs"]
+    "compatibilites": [
+      "viandes grasses",
+      "liqueurs"
+    ],
+    "description_en": "Traditional plant used in herbalism.",
+    "arome_en": "bitter, grassy",
+    "culture_en": "Sun, poor soil.",
+    "toxicite_en": "May be neurotoxic in excess.",
+    "usages_en": [
+      "infusions",
+      "digestive"
+    ],
+    "compatibilites_en": [
+      "fatty meats",
+      "liquors"
+    ]
   },
   "oregano": {
     "nom_fr": "Origan",
@@ -185,11 +501,31 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Origan",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Oregano",
     "description": "Herbe méditerranéenne très utilisée dans la cuisine italienne.",
-    "usages": ["pizzas", "sauces tomates"],
+    "usages": [
+      "pizzas",
+      "sauces tomates"
+    ],
     "arome": "chaud, légèrement amer",
     "culture": "Soleil, sol sec.",
     "toxicite": "Sans toxicité notable.",
-    "compatibilites": ["tomate", "ail", "fromage"]
+    "compatibilites": [
+      "tomate",
+      "ail",
+      "fromage"
+    ],
+    "description_en": "Mediterranean herb widely used in Italian cuisine.",
+    "arome_en": "hot, slightly bitter",
+    "culture_en": "Sun, dry soil.",
+    "toxicite_en": "Without significant toxicity.",
+    "usages_en": [
+      "pizza",
+      "tomato sauces"
+    ],
+    "compatibilites_en": [
+      "tomato",
+      "garlic",
+      "cheese"
+    ]
   },
   "parsley": {
     "nom_fr": "Persil",
@@ -197,11 +533,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Persil",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Parsley",
     "description": "Herbe fraîche incontournable en cuisine.",
-    "usages": ["salades", "sauces", "garnitures"],
+    "usages": [
+      "salades",
+      "sauces",
+      "garnitures"
+    ],
     "arome": "frais, herbacé",
     "culture": "Mi-ombre, sol frais.",
     "toxicite": "Les graines sont toxiques en grande quantité.",
-    "compatibilites": ["ail", "citron", "poisson"]
+    "compatibilites": [
+      "ail",
+      "citron",
+      "poisson"
+    ],
+    "description_en": "An essential fresh herb in the kitchen.",
+    "arome_en": "fresh, herbaceous",
+    "culture_en": "Partial shade, cool soil.",
+    "toxicite_en": "The seeds are toxic in large quantities.",
+    "usages_en": [
+      "salads",
+      "sauces",
+      "toppings"
+    ],
+    "compatibilites_en": [
+      "garlic",
+      "lemon",
+      "fish"
+    ]
   },
   "rosemary": {
     "nom_fr": "Romarin",
@@ -209,11 +567,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Romarin",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Rosemary",
     "description": "Herbe boisée très parfumée.",
-    "usages": ["viandes", "grillades", "pains"],
+    "usages": [
+      "viandes",
+      "grillades",
+      "pains"
+    ],
     "arome": "résineux, camphré",
     "culture": "Soleil, sol sec.",
     "toxicite": "Huile essentielle irritante.",
-    "compatibilites": ["agneau", "pommes de terre", "huile d’olive"]
+    "compatibilites": [
+      "agneau",
+      "pommes de terre",
+      "huile d’olive"
+    ],
+    "description_en": "Very fragrant woody herb.",
+    "arome_en": "resinous, camphorous",
+    "culture_en": "Sun, dry soil.",
+    "toxicite_en": "Irritating essential oil.",
+    "usages_en": [
+      "meats",
+      "grills",
+      "breads"
+    ],
+    "compatibilites_en": [
+      "lamb",
+      "potatoes",
+      "olive oil"
+    ]
   },
   "sage": {
     "nom_fr": "Sauge",
@@ -221,11 +601,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Sauge",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Sage",
     "description": "Herbe aromatique puissante, utilisée en cuisine et en herboristerie.",
-    "usages": ["viandes", "farces", "infusions"],
+    "usages": [
+      "viandes",
+      "farces",
+      "infusions"
+    ],
     "arome": "boisé, légèrement amer",
     "culture": "Soleil, sol sec.",
     "toxicite": "Huile essentielle neurotoxique à forte dose.",
-    "compatibilites": ["porc", "beurre", "courge"]
+    "compatibilites": [
+      "porc",
+      "beurre",
+      "courge"
+    ],
+    "description_en": "Powerful aromatic herb, used in cooking and herbalism.",
+    "arome_en": "woody, slightly bitter",
+    "culture_en": "Sun, dry soil.",
+    "toxicite_en": "Neurotoxic essential oil in high doses.",
+    "usages_en": [
+      "meats",
+      "stuffings",
+      "infusions"
+    ],
+    "compatibilites_en": [
+      "pork",
+      "butter",
+      "squash"
+    ]
   },
   "savory": {
     "nom_fr": "Sarriette",
@@ -233,11 +635,31 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Sarriette",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Savory_(herb)",
     "description": "Herbe poivrée très utilisée dans les plats mijotés.",
-    "usages": ["légumineuses", "plats mijotés"],
+    "usages": [
+      "légumineuses",
+      "plats mijotés"
+    ],
     "arome": "poivré, herbacé",
     "culture": "Soleil, sol sec.",
     "toxicite": "Sans toxicité notable.",
-    "compatibilites": ["haricots", "lentilles", "viandes blanches"]
+    "compatibilites": [
+      "haricots",
+      "lentilles",
+      "viandes blanches"
+    ],
+    "description_en": "Peppery herb widely used in stews.",
+    "arome_en": "peppery, grassy",
+    "culture_en": "Sun, dry soil.",
+    "toxicite_en": "Without significant toxicity.",
+    "usages_en": [
+      "legumes",
+      "simmered dishes"
+    ],
+    "compatibilites_en": [
+      "beans",
+      "lentils",
+      "white meats"
+    ]
   },
   "tarragon": {
     "nom_fr": "Estragon",
@@ -245,11 +667,31 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Estragon",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Tarragon",
     "description": "Herbe fine au goût anisé, très utilisée en cuisine française.",
-    "usages": ["sauces", "volailles"],
+    "usages": [
+      "sauces",
+      "volailles"
+    ],
     "arome": "anisé, doux",
     "culture": "Soleil, sol léger.",
     "toxicite": "Sans toxicité notable.",
-    "compatibilites": ["poulet", "moutarde", "crème"]
+    "compatibilites": [
+      "poulet",
+      "moutarde",
+      "crème"
+    ],
+    "description_en": "Fine herb with aniseed flavor, widely used in French cuisine.",
+    "arome_en": "aniseed, sweet",
+    "culture_en": "Sun, light soil.",
+    "toxicite_en": "Without significant toxicity.",
+    "usages_en": [
+      "sauces",
+      "poultry"
+    ],
+    "compatibilites_en": [
+      "chicken",
+      "mustard",
+      "cream"
+    ]
   },
   "thyme": {
     "nom_fr": "Thym",
@@ -257,11 +699,33 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Thym",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Thyme",
     "description": "Herbe méditerranéenne incontournable.",
-    "usages": ["viandes", "bouillons", "infusions"],
+    "usages": [
+      "viandes",
+      "bouillons",
+      "infusions"
+    ],
     "arome": "boisé, résineux",
     "culture": "Soleil, sol sec.",
     "toxicite": "Huile essentielle irritante.",
-    "compatibilites": ["ail", "citron", "agneau"]
+    "compatibilites": [
+      "ail",
+      "citron",
+      "agneau"
+    ],
+    "description_en": "Essential Mediterranean herb.",
+    "arome_en": "woody, resinous",
+    "culture_en": "Sun, dry soil.",
+    "toxicite_en": "Irritating essential oil.",
+    "usages_en": [
+      "meats",
+      "broths",
+      "infusions"
+    ],
+    "compatibilites_en": [
+      "garlic",
+      "lemon",
+      "lamb"
+    ]
   },
   "wintergreen": {
     "nom_fr": "Gaulthérie",
@@ -269,10 +733,26 @@
     "wikipedia_fr": "https://fr.wikipedia.org/wiki/Gaulth%C3%A9rie",
     "wikipedia_en": "https://en.wikipedia.org/wiki/Wintergreen",
     "description": "Plante très aromatique utilisée en huiles essentielles.",
-    "usages": ["aromathérapie"],
+    "usages": [
+      "aromathérapie"
+    ],
     "arome": "mentholé, médicinal",
     "culture": "Sol acide, ombre légère.",
     "toxicite": "Huile essentielle très puissante, toxique en ingestion.",
-    "compatibilites": ["baumes", "préparations médicinales"]
+    "compatibilites": [
+      "baumes",
+      "préparations médicinales"
+    ],
+    "description_en": "Very aromatic plant used in essential oils.",
+    "arome_en": "minty, medicinal",
+    "culture_en": "Acidic soil, light shade.",
+    "toxicite_en": "Very powerful essential oil, toxic if ingested.",
+    "usages_en": [
+      "aromatherapy"
+    ],
+    "compatibilites_en": [
+      "balms",
+      "medicinal preparations"
+    ]
   }
 }

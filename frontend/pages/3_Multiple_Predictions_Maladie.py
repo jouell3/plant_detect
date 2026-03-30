@@ -10,6 +10,7 @@ import requests
 import streamlit as st
 from loguru import logger
 
+from i18n import get_language, render_language_selector
 from styles import COLORS, confidence_color
 from utils import (
     clear_batch_session_tracking,
@@ -46,6 +47,14 @@ FICHES_ILL: dict = json.loads(_FICHES_ILL_PATH.read_text(encoding="utf-8")) if _
 # Background fetch infrastructure (shared utils)
 # ---------------------------------------------------------------------------
 _BG_STATE = get_batch_bg_state("maladie")
+
+with st.sidebar:
+    render_language_selector()
+
+lang = get_language()
+
+MODE_INDIVIDUAL = "Individual - Top-3" if lang == "en" else "Individuel - Top-3"
+MODE_BATCH = "Batch - Top-1"
 
 
 # ---------------------------------------------------------------------------
@@ -104,20 +113,25 @@ if "ill_predict_last_uploader_filenames" not in st.session_state:
 # ---------------------------------------------------------------------------
 # Header
 # ---------------------------------------------------------------------------
-st.title("Predictions de maladies en lot")
+st.title("Batch Disease Predictions" if lang == "en" else "Predictions de maladies en lot")
 st.markdown("""
-    - Cette page vous permet de faire des prédictions sur plusieurs images à la fois.  
-    - Il suffit de les sélectionner ci-dessous, puis de naviguer dans les pages de résultats.
-    - Si jamais une des prédictions est sous la barre des 60% de certitude, un petit pictogramme apparaîtra au niveau du nom de l'aromate.   
-      - Il est possible de choisir le niveau de certitude minimal voulu pour la ligne de concensus dans la barre latérale à droite."""
-)
+        - This page lets you run predictions on multiple images at once.
+        - Select images below, then browse the result pages.
+        - If a prediction falls below your minimum confidence threshold, a warning icon is shown.
+            - You can set the minimum confidence level from the right sidebar.
+""" if lang == "en" else """
+        - Cette page vous permet de faire des predictions sur plusieurs images a la fois.
+        - Il suffit de les selectionner ci-dessous, puis de naviguer dans les pages de resultats.
+        - Si une prediction est sous la barre des 60% de certitude, un pictogramme apparaitra.
+            - Il est possible de choisir le niveau de certitude minimal voulu dans la barre laterale a droite.
+""")
 
 # ---------------------------------------------------------------------------
 # Mode selector
 # ---------------------------------------------------------------------------
-st.markdown("### Choisissez le mode de prédiction")
+st.markdown("### Choose prediction mode" if lang == "en" else "### Choisissez le mode de prediction")
 predict_mode = st.radio(
-    "Mode de prédiction",
+    "Prediction mode" if lang == "en" else "Mode de prediction",
     [MODE_INDIVIDUAL, MODE_BATCH],
     horizontal=True,
     label_visibility="collapsed",
@@ -139,14 +153,22 @@ st.session_state.ill_predict_last_mode = predict_mode
 
 if predict_mode == MODE_INDIVIDUAL:
     st.info(
-        "**Mode individuel** : chaque image est envoyée séparément à l'API. "
-        "Vous obtenez les **3 meilleures prédictions** — idéal pour explorer les résultats en détail. "
-        "Les résultats s'affichent progressivement au fur et à mesure des appels."
+        "**Individual mode**: each image is sent separately to the API. "
+        "You get the **top 3 predictions** for each image, ideal for detailed review. "
+        "Results appear progressively as calls complete."
+        if lang == "en"
+        else "**Mode individuel** : chaque image est envoyee separement a l'API. "
+        "Vous obtenez les **3 meilleures predictions** - ideal pour explorer les resultats en detail. "
+        "Les resultats s'affichent progressivement au fur et a mesure des appels."
     )
 else:
     st.info(
-        "**Mode batch** : toutes les images sont envoyées en **une seule requête**. "
-        "Vous obtenez uniquement la **meilleure prédiction** par image. "
+        "**Batch mode**: all images are sent in **one request**. "
+        "You only get the **top prediction** for each image. "
+        "Faster and more efficient for large sets of images."
+        if lang == "en"
+        else "**Mode batch** : toutes les images sont envoyees en **une seule requete**. "
+        "Vous obtenez uniquement la **meilleure prediction** par image. "
         "Plus rapide et plus efficace pour traiter un grand nombre d'images d'un coup."
     )
 
@@ -168,15 +190,27 @@ with col_btn:
 current_uploader_filenames = {f.name for f in uploaded_images} if uploaded_images else set()
 ill_loaded_filenames = {f["name"] for f in st.session_state.ill_predict_image_files}
 if current_uploader_filenames and current_uploader_filenames != ill_loaded_filenames:
-    st.info(f"**{len(uploaded_images)} image(s) sélectionnée(s)**. Cliquez sur **Load** pour lancer cette sélection.")
+    st.info(
+        f"**{len(uploaded_images)} image(s) selected**. Click **Load** to launch this selection."
+        if lang == "en"
+        else f"**{len(uploaded_images)} image(s) selectionnee(s)**. Cliquez sur **Load** pour lancer cette selection."
+    )
 elif st.session_state.ill_predict_image_files:
-    st.caption(f"{len(st.session_state.ill_predict_image_files)} image(s) chargée(s).")
+    st.caption(
+        f"{len(st.session_state.ill_predict_image_files)} image(s) loaded."
+        if lang == "en"
+        else f"{len(st.session_state.ill_predict_image_files)} image(s) chargee(s)."
+    )
 else:
-    st.caption("0 image(s) sélectionnée(s). Cliquez sur Load pour lancer les prédictions.")
+    st.caption(
+        "0 image(s) selected. Click Load to launch predictions."
+        if lang == "en"
+        else "0 image(s) selectionnee(s). Cliquez sur Load pour lancer les predictions."
+    )
 
 if load_clicked:
     if not uploaded_images:
-        st.error("Veuillez uploader au moins une image.")
+        st.error("Please upload at least one image." if lang == "en" else "Veuillez uploader au moins une image.")
     else:
         valid_files, invalid_files = validate_images_batch(uploaded_images)
         show_validation_summary(len(valid_files), len(uploaded_images))
@@ -200,10 +234,14 @@ if load_clicked:
                         results = fetch_illness_batch(first_page)
                         st.session_state.ill_predict_batch_results.update(results)
                         st.session_state.ill_predict_batches_loaded.add(0)
-                        st.success(f"Page 1 chargée — {len(results)} images.")
+                        st.success(
+                            f"Page 1 loaded - {len(results)} images."
+                            if lang == "en"
+                            else f"Page 1 chargee - {len(results)} images."
+                        )
                         first_page_ok = True
                     except Exception as e:
-                        st.error(f"Erreur API batch: {e}")
+                        st.error((f"Batch API error: {e}") if lang == "en" else (f"Erreur API batch: {e}"))
                         logger.error("predict-set_illness error | {}", e)
 
                 remaining_files = image_files[PAGE_SIZE:] if first_page_ok else image_files
@@ -223,14 +261,18 @@ if not st.session_state.ill_predict_image_files:
 # Sidebar — filters + CSV export
 # ---------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### Filtres")
-    min_confidence_pct = st.slider("Confiance minimale", 0, 100, 0, 5, format="%d%%")
+    st.markdown("### Filters" if lang == "en" else "### Filtres")
+    min_confidence_pct = st.slider("Minimum confidence" if lang == "en" else "Confiance minimale", 0, 100, 0, 5, format="%d%%")
     min_confidence = min_confidence_pct / 100
-    st.caption("Conseil : en dessous de 50%, reprenez la photo avec un meilleur éclairage et un cadrage plus proche.")
+    st.caption(
+        "Tip: below 50%, retake the photo with better lighting and a closer crop."
+        if lang == "en"
+        else "Conseil : en dessous de 50%, reprenez la photo avec un meilleur eclairage et un cadrage plus proche."
+    )
 
     st.markdown("### Export")
-    if st.button("Générer le CSV", use_container_width=True):
-        with st.spinner("Génération du CSV en cours..."):
+    if st.button("Generate CSV" if lang == "en" else "Generer le CSV", use_container_width=True):
+        with st.spinner("Generating CSV..." if lang == "en" else "Generation du CSV en cours..."):
             buf = io.StringIO()
             writer = csv.writer(buf)
             all_files = st.session_state.ill_predict_image_files
@@ -264,12 +306,20 @@ with st.sidebar:
                     writer.writerow(row)
                     success_count += 1
                 if success_count:
-                    st.success(f"CSV prêt : {success_count} image(s) exportée(s).")
+                    st.success(
+                        f"CSV ready: {success_count} image(s) exported."
+                        if lang == "en"
+                        else f"CSV pret : {success_count} image(s) exportee(s)."
+                    )
                 if failure_count:
-                    st.warning(f"{failure_count} image(s) ignorée(s) suite à une erreur API.")
+                    st.warning(
+                        f"{failure_count} image(s) skipped due to API errors."
+                        if lang == "en"
+                        else f"{failure_count} image(s) ignoree(s) suite a une erreur API."
+                    )
 
             st.download_button(
-                "Télécharger",
+                "Download" if lang == "en" else "Telecharger",
                 buf.getvalue().encode("utf-8"),
                 file_name="predictions_maladies.csv",
                 mime="text/csv",
@@ -302,13 +352,15 @@ if predict_mode == MODE_BATCH:
         color = confidence_color(pred["confidence"])
         fiche = FICHES_ILL.get(pred["illness"], {})
         display_name = fiche.get("nom_maladie_fr") or pred["illness"]
+        if lang == "en":
+            display_name = fiche.get("nom_en") or pred["illness"]
         conf_icon = "⚠️ " if low_confidence else ""
         st.image(file["bytes"], width="stretch")
         st.caption(file["name"])
         st.markdown(
             f"<div style='text-align:center; width:100%; margin-top:6px; margin-bottom:2px; line-height:1.4'>"
             f"<div style='font-size:clamp(0.85rem, 1.6vw, 1.3rem); font-weight:bold'>{conf_icon}{display_name}</div>"
-            f"<div style='font-size:clamp(0.7rem, 1.2vw, 1.0rem); color:{color}; font-weight:bold'>{pred['confidence']:.1%} certitude</div>"
+            f"<div style='font-size:clamp(0.7rem, 1.2vw, 1.0rem); color:{color}; font-weight:bold'>{pred['confidence']:.1%} {'confidence' if lang == 'en' else 'certitude'}</div>"
             f"</div>",
             unsafe_allow_html=True,
         )
@@ -328,8 +380,12 @@ if predict_mode == MODE_BATCH:
     )
 
     if not is_running and failed_files:
-        st.info(f"{len(failed_files)} image(s) en échec peuvent être relancées sans perdre les résultats déjà reçus.")
-        if st.button("Reprendre les lots échoués", use_container_width=True, key="retry_failed_maladie"):
+        st.info(
+            f"{len(failed_files)} failed image(s) can be retried without losing already received results."
+            if lang == "en"
+            else f"{len(failed_files)} image(s) en echec peuvent etre relancees sans perdre les resultats deja recus."
+        )
+        if st.button("Retry failed batches" if lang == "en" else "Reprendre les lots echoues", use_container_width=True, key="retry_failed_maladie"):
             with _BG_STATE["lock"]:
                 _BG_STATE["running"].add(_sid)
             threading.Thread(
@@ -363,13 +419,15 @@ else:
                 except Exception as e:
                     st.image(file["bytes"], width="stretch")
                     st.caption(file["name"])
-                    st.error(f"Erreur API: {e}")
+                    st.error((f"API error: {e}") if lang == "en" else (f"Erreur API: {e}"))
                     continue
 
                 top3 = result if isinstance(result, list) else next(iter(result.values()))
                 low_confidence = top3[0]["confidence"] < min_confidence
                 top1_illness = top3[0]["illness"]
                 top1_name = FICHES_ILL.get(top1_illness, {}).get("nom_maladie_fr") or top1_illness
+                if lang == "en":
+                    top1_name = FICHES_ILL.get(top1_illness, {}).get("nom_en") or top1_illness
                 top1_color = confidence_color(top3[0]["confidence"])
                 conf_icon = "⚠️ " if low_confidence else ""
                 st.image(file["bytes"], width="stretch")
@@ -377,7 +435,7 @@ else:
                 st.markdown(
                     f"<div style='text-align:center; width:100%; margin-top:6px; margin-bottom:4px; line-height:1.4'>"
                     f"<div style='font-size:clamp(0.85rem, 1.6vw, 1.3rem); font-weight:bold'>{conf_icon}{top1_name}</div>"
-                    f"<div style='font-size:clamp(0.7rem, 1.2vw, 1.0rem); color:{top1_color}; font-weight:bold'>{top3[0]['confidence']:.1%} certitude</div>"
+                    f"<div style='font-size:clamp(0.7rem, 1.2vw, 1.0rem); color:{top1_color}; font-weight:bold'>{top3[0]['confidence']:.1%} {'confidence' if lang == 'en' else 'certitude'}</div>"
                     f"</div>",
                     unsafe_allow_html=True,
                 )
@@ -385,6 +443,8 @@ else:
                 for rank, pred in enumerate(top3, 1):
                     color = confidence_color(pred["confidence"]) if rank == 1 else "#999"
                     name = FICHES_ILL.get(pred["illness"], {}).get("nom_maladie_fr") or pred["illness"]
+                    if lang == "en":
+                        name = FICHES_ILL.get(pred["illness"], {}).get("nom_en") or pred["illness"]
                     bg = "background-color:#e8f5e9;" if pred["illness"] == top1_illness else ""
                     rows_html += (
                         f"<tr style='{bg}'>"
@@ -398,8 +458,8 @@ else:
                     f"<colgroup><col style='width:12%'><col style='width:58%'><col style='width:30%'></colgroup>"
                     f"<thead><tr>"
                     f"<th style='text-align:center; {_HEAD_ILL}'>#</th>"
-                    f"<th style='text-align:left; {_HEAD_ILL}'>Maladie</th>"
-                    f"<th style='text-align:right; {_HEAD_ILL}'>Confiance</th>"
+                    f"<th style='text-align:left; {_HEAD_ILL}'>{'Disease' if lang == 'en' else 'Maladie'}</th>"
+                    f"<th style='text-align:right; {_HEAD_ILL}'>{'Confidence' if lang == 'en' else 'Confiance'}</th>"
                     f"</tr></thead><tbody>{rows_html}</tbody></table>",
                     unsafe_allow_html=True,
                 )
@@ -414,8 +474,8 @@ else:
             st.rerun()
     with p_mid:
         end_img = min(start + PAGE_SIZE, total_files)
-        st.metric("Progression", f"Page {page + 1} / {total_pages}", delta=f"images {start + 1}–{end_img}")
-        target_page = st.number_input("Aller à la page", min_value=1, max_value=total_pages,
+        st.metric("Progress" if lang == "en" else "Progression", f"Page {page + 1} / {total_pages}", delta=f"images {start + 1}-{end_img}")
+        target_page = st.number_input("Go to page" if lang == "en" else "Aller a la page", min_value=1, max_value=total_pages,
                                       value=page + 1, step=1, key="ill_predict_jump_page")
         if target_page != page + 1:
             st.session_state.ill_predict_page = int(target_page) - 1

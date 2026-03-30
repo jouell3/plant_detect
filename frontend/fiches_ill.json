@@ -1,4 +1,3 @@
-
 {
   "Apple_scab": {
     "nom_maladie_fr": "Oïdium du pommier",
@@ -8,7 +7,11 @@
     "cause": "Maladie fongique causée par Venturia inaequalis, provoquant des taches sombres sur les feuilles et fruits.",
     "traitement_curatif": "Éliminer les parties infectées, appliquer des fongicides adaptés.",
     "traitement_preventif": "Choisir des variétés résistantes, nettoyage régulier, traiter préventivement au printemps.",
-    "saison_gravite": "Printemps, moyenne à forte gravité"
+    "saison_gravite": "Printemps, moyenne à forte gravité",
+    "cause_en": "Fungal disease caused by Venturia inaequalis, causing dark spots on leaves and fruit.",
+    "traitement_curatif_en": "Eliminate infected parts, apply suitable fungicides.",
+    "traitement_preventif_en": "Choose resistant varieties, regular cleaning, treat preventively in spring.",
+    "saison_gravite_en": "Spring, medium to high severity"
   },
   "Apple_Black_rot": {
     "nom_maladie_fr": "Pourriture noire du pommier",
@@ -18,7 +21,11 @@
     "cause": "Infection fongique causée par Botryosphaeria obtusa, provoquant des taches noires sur fruits et branches.",
     "traitement_curatif": "Couper les branches malades, appliquer un fongicide.",
     "traitement_preventif": "Éliminer les fruits tombés, désinfection des outils, variétés résistantes.",
-    "saison_gravite": "Été, forte gravité"
+    "saison_gravite": "Été, forte gravité",
+    "cause_en": "Fungal infection caused by Botryosphaeria obtusa, causing black spots on fruits and branches.",
+    "traitement_curatif_en": "Cut diseased branches, apply fungicide.",
+    "traitement_preventif_en": "Eliminate fallen fruit, disinfection of tools, resistant varieties.",
+    "saison_gravite_en": "Summer, high severity"
   },
   "Apple_Cedar_apple_rust": {
     "nom_maladie_fr": "Rouille du pommier",
@@ -28,7 +35,11 @@
     "cause": "Maladie causée par Gymnosporangium juniperi-virginianae nécessitant un hôte intermédiaire (genévrier).",
     "traitement_curatif": "Retirer les arbres hôtes proches, fongicides spécifiques.",
     "traitement_preventif": "Planter loin des genévriers, traitement_preventif au printemps.",
-    "saison_gravite": "Printemps, moyenne gravité"
+    "saison_gravite": "Printemps, moyenne gravité",
+    "cause_en": "Disease caused by Gymnosporangium juniperi-virginianae requiring an intermediate host (juniper).",
+    "traitement_curatif_en": "Remove nearby host trees, specific fungicides.",
+    "traitement_preventif_en": "Plant far from juniper trees, preventive treatment in spring.",
+    "saison_gravite_en": "Spring, medium severity"
   },
   "Tomato_Bacterial_spot": {
     "nom_maladie_fr": "Tache bactérienne de la tomate",
@@ -38,7 +49,11 @@
     "cause": "Infection bactérienne causée par Xanthomonas spp., provoquant des taches sur feuilles et fruits.",
     "traitement_curatif": "Élimination des feuilles infectées, traitement cuprique.",
     "traitement_preventif": "Rotation des cultures, semences certifiées, éviter l’irrigation par aspersion.",
-    "saison_gravite": "Été, moyenne gravité"
+    "saison_gravite": "Été, moyenne gravité",
+    "cause_en": "Bacterial infection caused by Xanthomonas spp., causing spots on leaves and fruit.",
+    "traitement_curatif_en": "Elimination of infected leaves, copper treatment.",
+    "traitement_preventif_en": "Crop rotation, certified seeds, avoid sprinkler irrigation.",
+    "saison_gravite_en": "Summer, medium severity"
   },
   "Tomato_Early_blight": {
     "nom_maladie_fr": "Brûlure précoce de la tomate",
@@ -48,7 +63,11 @@
     "cause": "Maladie fongique causée par Alternaria solani, taches concentriques sur feuilles et tiges.",
     "traitement_curatif": "Retirer les feuilles infectées, fongicides à base de cuivre ou chlorothalonil.",
     "traitement_preventif": "Rotation des cultures, éviter humidité excessive, espacements suffisants.",
-    "saison_gravite": "Été, forte gravité"
+    "saison_gravite": "Été, forte gravité",
+    "cause_en": "Fungal disease caused by Alternaria solani, concentric spots on leaves and stems.",
+    "traitement_curatif_en": "Remove infected leaves, use copper-based fungicides or chlorothalonil.",
+    "traitement_preventif_en": "Crop rotation, avoid excessive humidity, sufficient spacing.",
+    "saison_gravite_en": "Summer, high severity"
   },
   "Tomato_healthy": {
     "nom_maladie_fr": "Tomate saine",
@@ -58,7 +77,11 @@
     "cause": "-",
     "traitement_curatif": "-",
     "traitement_preventif": "Maintenir un bon arrosage, rotation des cultures, variétés résistantes, bonne hygiène des outils.",
-    "saison_gravite": "Tomate"
+    "saison_gravite": "Tomate",
+    "cause_en": "-",
+    "traitement_curatif_en": "-",
+    "traitement_preventif_en": "Maintain good watering, crop rotation, resistant varieties, good tool hygiene.",
+    "saison_gravite_en": "Tomato"
   },
   "Tomato_Late_blight": {
     "nom_maladie_fr": "Mildiou de la tomate",
@@ -68,7 +91,11 @@
     "cause": "Maladie fongique causée par Phytophthora infestans, feuilles et fruits flétrissent et noircissent.",
     "traitement_curatif": "Fongicides spécifiques (ex : cuivre, chlorothalonil), retirer parties infectées.",
     "traitement_preventif": "Éviter humidité prolongée, variétés résistantes, rotation des cultures.",
-    "saison_gravite": "Été, très grave"
+    "saison_gravite": "Été, très grave",
+    "cause_en": "Fungal disease caused by Phytophthora infestans, leaves and fruits wilt and turn black.",
+    "traitement_curatif_en": "Specific fungicides (e.g. copper, chlorothalonil), remove infected parts.",
+    "traitement_preventif_en": "Avoid prolonged humidity, resistant varieties, crop rotation.",
+    "saison_gravite_en": "Summer, very serious"
   },
   "Tomato_Leaf_Mold": {
     "nom_maladie_fr": "Mildiou foliaire de la tomate",
@@ -78,7 +105,11 @@
     "cause": "Infection fongique causée par Passalora fulva, taches jaunes sur feuilles supérieures.",
     "traitement_curatif": "Retirer feuilles atteintes, fongicides adaptés.",
     "traitement_preventif": "Bonne ventilation, espacement des plants, variétés résistantes.",
-    "saison_gravite": "Été, moyenne gravité"
+    "saison_gravite": "Été, moyenne gravité",
+    "cause_en": "Fungal infection caused by Passalora fulva, yellow spots on upper leaves.",
+    "traitement_curatif_en": "Remove affected leaves, use suitable fungicides.",
+    "traitement_preventif_en": "Good ventilation, plant spacing, resistant varieties.",
+    "saison_gravite_en": "Summer, medium severity"
   },
   "Tomato_Septoria_leaf_spot": {
     "nom_maladie_fr": "Septoriose de la tomate",
@@ -88,7 +119,11 @@
     "cause": "Maladie fongique causée par Septoria lycopersici, petites taches brunes sur feuilles.",
     "traitement_curatif": "Couper les feuilles infectées, fongicides adaptés.",
     "traitement_preventif": "Rotation des cultures, éviter humidité excessive.",
-    "saison_gravite": "Été, moyenne gravité"
+    "saison_gravite": "Été, moyenne gravité",
+    "cause_en": "Fungal disease caused by Septoria lycopersici, small brown spots on leaves.",
+    "traitement_curatif_en": "Cut infected leaves, suitable fungicides.",
+    "traitement_preventif_en": "Crop rotation, avoid excessive humidity.",
+    "saison_gravite_en": "Summer, medium severity"
   },
   "Tomato_Spider_mites": {
     "nom_maladie_fr": "Tétranyque de la tomate",
@@ -98,7 +133,11 @@
     "cause": "Petit acarien (Tetranychus urticae) qui suce la sève des feuilles, provoquant jaunissement et chute.",
     "traitement_curatif": "Insecticides acaricides, lavage des feuilles.",
     "traitement_preventif": "Surveillance régulière, introduire prédateurs naturels (acarien phytoseiulus).",
-    "saison_gravite": "Été, moyenne gravité"
+    "saison_gravite": "Été, moyenne gravité",
+    "cause_en": "Small mite (Tetranychus urticae) that sucks sap from leaves, causing yellowing and falling.",
+    "traitement_curatif_en": "Acaricidal insecticides, leaf washing.",
+    "traitement_preventif_en": "Regular monitoring, introduce natural predators (phytoseiulus mite).",
+    "saison_gravite_en": "Summer, medium severity"
   },
   "Tomato_Target_Spot": {
     "nom_maladie_fr": "Tache cible de la tomate",
@@ -108,7 +147,11 @@
     "cause": "Maladie fongique causée par Corynespora cassiicola, taches circulaires sur feuilles et fruits.",
     "traitement_curatif": "Retirer parties infectées, fongicides adaptés.",
     "traitement_preventif": "Rotation des cultures, éviter humidité excessive.",
-    "saison_gravite": "Été, moyenne gravité"
+    "saison_gravite": "Été, moyenne gravité",
+    "cause_en": "Fungal disease caused by Corynespora cassiicola, circular spots on leaves and fruits.",
+    "traitement_curatif_en": "Remove infected parts, use suitable fungicides.",
+    "traitement_preventif_en": "Crop rotation, avoid excessive humidity.",
+    "saison_gravite_en": "Summer, medium severity"
   },
   "Tomato_mosaic_virus": {
     "nom_maladie_fr": "Virus de la mosaïque de la tomate",
@@ -118,7 +161,11 @@
     "cause": "Infection virale causée par TMV, déformations et taches jaunes sur feuilles et fruits.",
     "traitement_curatif": "Pas de traitement_curatif, retirer plantes infectées.",
     "traitement_preventif": "Semences certifiées, désinfection des outils, rotation des cultures.",
-    "saison_gravite": "Toute saison, forte gravité"
+    "saison_gravite": "Toute saison, forte gravité",
+    "cause_en": "Viral infection caused by TMV, deformations and yellow spots on leaves and fruits.",
+    "traitement_curatif_en": "No curative treatment, remove infected plants.",
+    "traitement_preventif_en": "Certified seeds, disinfection of tools, crop rotation.",
+    "saison_gravite_en": "All season, high severity"
   },
   "Tomato_Yellow_Leaf_Curl_Virus": {
     "nom_maladie_fr": "Virus du jaunissement en feuille de la tomate",
@@ -128,6 +175,10 @@
     "cause": "Infection virale transmise par la mouche blanche, feuilles se recroquevillent et jaunissent.",
     "traitement_curatif": "Pas de traitement_curatif, retirer plantes infectées.",
     "traitement_preventif": "Contrôle des vecteurs, variétés résistantes.",
-    "saison_gravite": "Toute saison, forte gravité"
+    "saison_gravite": "Toute saison, forte gravité",
+    "cause_en": "Viral infection transmitted by whitefly, leaves curl up and turn yellow.",
+    "traitement_curatif_en": "No curative treatment, remove infected plants.",
+    "traitement_preventif_en": "Vector control, resistant varieties.",
+    "saison_gravite_en": "All season, high severity"
   }
 }
