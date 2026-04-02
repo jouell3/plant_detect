@@ -1,0 +1,492 @@
+diff --git a/backend/app/api/main.py b/backend/app/api/main.py
+index ccd30a5..8d46a18 100644
+--- a/backend/app/api/main.py
++++ b/backend/app/api/main.py
+@@ -6,11 +6,10 @@ from pathlib import Path
+ 
+ from fastapi import FastAPI, File, UploadFile
+ 
+-from ..src.herbs_detection.model_gcs import predict_top3 as pt_top3, predict_set as pt_set, load_model as load_model_pytorch
+-from ..src.herbs_detection.model_sklearn_gcs import predict_top3 as sk_top3, predict_set as sk_set, load_model as load_model_sklearn
+-from ..src.herbs_detection.model_pytorch_large_gcs import predict_top3 as ptl_top3, predict_set as ptl_set, load_model as load_model_pytorch_large
+-from ..src.herbs_detection.model_tensorflow_gcs import predict_top3 as tf_top3, predict_set as tf_set, load_model as load_model_tensorflow
+-from ..src.herbs_detection.model_illness_gcs import predict_top3 as illness_top3, predict_set as illness_set, load_model as load_model_illness
++from herbs_detection.model import predict_top3 as pt_top3, predict_set as pt_set, load_model as load_model_pytorch
++from herbs_detection.model_sklearn import predict_top3 as sk_top3, predict_set as sk_set, load_model as load_model_sklearn
++from herbs_detection.model_pytorch_large import predict_top3 as ptl_top3, predict_set as ptl_set, load_model as load_model_pytorch_large
++from herbs_detection.model_illness import predict_top3 as illness_top3, predict_set as illness_set, load_model as load_model_illness
+ 
+ 
+ from loguru import logger
+@@ -23,7 +22,6 @@ async def lifespan(app: FastAPI):
+     threading.Thread(target=load_model_pytorch, daemon=True).start()
+     threading.Thread(target=load_model_sklearn, daemon=True).start()
+     threading.Thread(target=load_model_pytorch_large, daemon=True).start()
+-    threading.Thread(target=load_model_tensorflow, daemon=True).start()
+     threading.Thread(target=load_model_illness, daemon=True).start()
+     yield
+     logger.info("Shutting down.")
+@@ -53,14 +51,12 @@ async def predict_endpoint(file: UploadFile):
+     pytorch_preds = pt_top3(tmp_path)
+     sklearn_preds = sk_top3(tmp_path)
+     pytorch_large_preds = ptl_top3(tmp_path)
+-    tensorflow_preds = tf_top3(tmp_path)
+     Path(tmp_path).unlink()
+ 
+     return {
+         "pytorch": [{"species": s, "confidence": c} for s, c in pytorch_preds],
+         "sklearn": [{"species": s, "confidence": c} for s, c in sklearn_preds],
+         "pytorch_large": [{"species": s, "confidence": c} for s, c in pytorch_large_preds],
+-        "tensorflow": [{"species": s, "confidence": c} for s, c in tensorflow_preds],
+     }
+ 
+ @api.post("/predict_illness")
+@@ -99,7 +95,6 @@ async def predict_set_endpoint(files: list[UploadFile]):
+     pytorch_results = pt_set(tmp_paths)
+     sklearn_results = sk_set(tmp_paths)
+     pytorch_large_results = ptl_set(tmp_paths)
+-    tensorflow_results = tf_set(tmp_paths)
+     for p in tmp_paths:
+         Path(p).unlink()
+     return [
+@@ -108,10 +103,9 @@ async def predict_set_endpoint(files: list[UploadFile]):
+             "pytorch": {"species": pt_s, "confidence": pt_c},
+             "sklearn": {"species": sk_s, "confidence": sk_c},
+             "pytorch_large": {"species": ptl_s, "confidence": ptl_c},
+-            "tensorflow": {"species": tf_s, "confidence": tf_c},
+         }
+-        for f, (pt_s, pt_c), (sk_s, sk_c), (ptl_s, ptl_c), (tf_s, tf_c)
+-        in zip(filenames, pytorch_results, sklearn_results, pytorch_large_results, tensorflow_results)
++        for f, (pt_s, pt_c), (sk_s, sk_c), (ptl_s, ptl_c)
++        in zip(filenames, pytorch_results, sklearn_results, pytorch_large_results)
+     ]
+ 
+ 
+diff --git a/backend/app/src/herbs_detection/model_tensorflow.py b/backend/app/src/herbs_detection/model_tensorflow.py
+deleted file mode 100644
+index 1947aa9..0000000
+--- a/backend/app/src/herbs_detection/model_tensorflow.py
++++ /dev/null
+@@ -1,159 +0,0 @@
+-import fnmatch
+-import os
+-import pickle
+-import threading
+-from pathlib import Path
+-
+-import numpy as np
+-import tensorflow as tf
+-from loguru import logger
+-from PIL import Image
+-
+-# ---------------------------------------------------------------------------
+-# GCS download helper
+-# ---------------------------------------------------------------------------
+-
+-
+-DEVICE = "GPU" if tf.config.list_physical_devices("GPU") else "CPU"
+-
+-_MODEL_FILE_PATTERNS = {
+-    "model": "*_model_*.keras",
+-    "encoder": "*_label_encoder_*.pkl",
+-    "metadata": "*_metadata_*.pkl",
+-}
+-
+-
+-def _pick_latest_path(directory: Path, pattern: str) -> Path:
+-    matches = sorted(directory.glob(pattern))
+-    if not matches:
+-        raise FileNotFoundError(f"No file matching '{pattern}' in {directory}")
+-    return matches[-1]
+-
+-
+-def _resolve_latest_artifacts(directory: Path) -> dict[str, Path]:
+-    return {
+-        name: _pick_latest_path(directory, pattern)
+-        for name, pattern in _MODEL_FILE_PATTERNS.items()
+-    }
+-
+-# ---------------------------------------------------------------------------
+-# Model directory resolution
+-# ---------------------------------------------------------------------------
+-def _resolve_tensorflow_dir() -> Path:
+-    logger.info("Resolving tensorflow model directory...")
+-
+-    candidates: list[Path] = []
+-
+-    here = Path(__file__).resolve()
+-    candidates.append(here.parents[2] / "models_tensorflow")
+-    candidates.append(Path.cwd() / "backend/app/models_tensorflow")
+-    candidates.append(Path.cwd() / "app/models_tensorflow")
+-    logger.debug("TensorFlow model directory candidates: {}", candidates)
+-    for p in candidates:
+-        if p.exists():
+-            return p
+-
+-    raise FileNotFoundError(
+-        "Could not find a models_tensorflow directory with matching .keras, "
+-        "label encoder, and metadata files. Set MODEL_TF_PATH or "
+-        "place the files in backend/app/models_tensorflow/."
+-    )
+-
+-
+-def _load_metadata(metadata_path: Path) -> dict:
+-    with open(metadata_path, "rb") as f:
+-        metadata = pickle.load(f)
+-    if not isinstance(metadata, dict):
+-        raise TypeError(f"Expected dict metadata in {metadata_path}, got {type(metadata)}")
+-    return metadata
+-
+-
+-# ---------------------------------------------------------------------------
+-# Lazy singleton — loaded once on first use (or via load_model())
+-# ---------------------------------------------------------------------------
+-_le = None
+-_model = None
+-_input_size = (384, 384)
+-_ready = threading.Event()
+-
+-
+-def load_model() -> None:
+-    """Resolve model dir, download from GCS if needed, and load the keras model."""
+-    global _le, _model, _input_size
+-
+-    model_dir = _resolve_tensorflow_dir()
+-    artifacts = _resolve_latest_artifacts(model_dir)
+-    metadata = _load_metadata(artifacts["metadata"])
+-
+-    with open(artifacts["encoder"], "rb") as f:
+-        _le = pickle.load(f)
+-
+-    input_size = metadata.get("input_size", (384, 384))
+-    if len(input_size) != 2:
+-        raise ValueError(f"Unsupported input_size in metadata: {input_size}")
+-    _input_size = tuple(int(dim) for dim in input_size)
+-
+-    _model = tf.keras.models.load_model(artifacts["model"], compile=False)
+-
+-    _ready.set()
+-    logger.info(
+-        "TensorFlow model ready. device={} model={} classes={} weights={}",
+-        DEVICE,
+-        metadata.get("model_name", "unknown"),
+-        len(_le.classes_),
+-        artifacts["model"].name,
+-    )
+-
+-
+-def _ensure_loaded() -> None:
+-    _ready.wait()
+-
+-
+-# ---------------------------------------------------------------------------
+-# Helpers
+-# ---------------------------------------------------------------------------
+-def _load_array(img_path: str) -> np.ndarray:
+-    img = Image.open(img_path).convert("RGB")
+-    img = img.resize((_input_size[1], _input_size[0]))
+-    array = np.asarray(img, dtype=np.float32)
+-    return np.expand_dims(array, axis=0)
+-
+-
+-def _load_batch(img_paths: list[str]) -> np.ndarray:
+-    arrays = []
+-    for path in img_paths:
+-        img = Image.open(path).convert("RGB")
+-        img = img.resize((_input_size[1], _input_size[0]))
+-        arrays.append(np.asarray(img, dtype=np.float32))
+-    return np.stack(arrays, axis=0)
+-
+-
+-# ---------------------------------------------------------------------------
+-# Public API
+-# ---------------------------------------------------------------------------
+-def predict(img_path: str) -> tuple[str, float]:
+-    _ensure_loaded()
+-    proba = _model.predict(_load_array(img_path), verbose=0)[0]
+-    class_idx = int(np.argmax(proba))
+-    species = _le.inverse_transform([class_idx])[0]
+-    return species, round(float(proba[class_idx]), 4)
+-
+-
+-def predict_top3(img_path: str) -> list[tuple[str, float]]:
+-    _ensure_loaded()
+-    proba = _model.predict(_load_array(img_path), verbose=0)[0]
+-    top3 = np.argsort(proba)[::-1][:3]
+-    return [(_le.classes_[i], round(float(proba[i]), 4)) for i in top3]
+-
+-
+-def predict_set(img_paths: list[str], batch_size: int = 32) -> list[tuple[str, float]]:
+-    _ensure_loaded()
+-    results = []
+-    for start in range(0, len(img_paths), batch_size):
+-        chunk = img_paths[start : start + batch_size]
+-        batch = _load_batch(chunk)
+-        proba = _model.predict(batch, verbose=0)
+-        for row in proba:
+-            best = int(np.argmax(row))
+-            results.append((_le.classes_[best], round(float(row[best]), 4)))
+-    return results
+diff --git a/backend/app/src/herbs_detection/model_tensorflow_gcs.py b/backend/app/src/herbs_detection/model_tensorflow_gcs.py
+deleted file mode 100644
+index f6a31a4..0000000
+--- a/backend/app/src/herbs_detection/model_tensorflow_gcs.py
++++ /dev/null
+@@ -1,222 +0,0 @@
+-import fnmatch
+-import os
+-import pickle
+-import threading
+-from pathlib import Path
+-
+-import numpy as np
+-import tensorflow as tf
+-from loguru import logger
+-from PIL import Image
+-
+-# ---------------------------------------------------------------------------
+-# GCS download helper
+-# ---------------------------------------------------------------------------
+-_GCS_BUCKET = os.getenv("GCS_BUCKET_NAME", "plant-detect-models")
+-_GCS_TF_PREFIX = os.getenv("GCS_TF_PREFIX", "models_tensorflow").rstrip("/")
+-_GCS_PROJECT = os.getenv("GCS_PROJECT", "bootcamparomatic")
+-
+-_MODEL_FILE_PATTERNS = {
+-    "model": "*_model_*.keras",
+-    "encoder": "*_label_encoder_*.pkl",
+-    "metadata": "*_metadata_*.pkl",
+-}
+-
+-DEVICE = "GPU" if tf.config.list_physical_devices("GPU") else "CPU"
+-
+-
+-def _pick_latest_path(directory: Path, pattern: str) -> Path:
+-    matches = sorted(directory.glob(pattern))
+-    if not matches:
+-        raise FileNotFoundError(f"No file matching '{pattern}' in {directory}")
+-    return matches[-1]
+-
+-
+-def _resolve_latest_artifacts(directory: Path) -> dict[str, Path]:
+-    return {
+-        name: _pick_latest_path(directory, pattern)
+-        for name, pattern in _MODEL_FILE_PATTERNS.items()
+-    }
+-
+-
+-def _pick_latest_blob(blobs: list, pattern: str):
+-    matches = sorted(
+-        (blob for blob in blobs if fnmatch.fnmatch(Path(blob.name).name, pattern)),
+-        key=lambda blob: Path(blob.name).name,
+-    )
+-    if not matches:
+-        raise FileNotFoundError(f"No blob matching '{pattern}'")
+-    return matches[-1]
+-
+-
+-def _download_from_gcs_tensorflow(local_dir: Path) -> None:
+-    from google.cloud import storage
+-
+-    logger.info(
+-        "Downloading tensorflow model from gs://{}/{}/",
+-        _GCS_BUCKET,
+-        _GCS_TF_PREFIX,
+-    )
+-    client = storage.Client(project=_GCS_PROJECT)
+-    bucket = client.bucket(_GCS_BUCKET)
+-
+-    prefix = f"{_GCS_TF_PREFIX}/"
+-    all_blobs = list(bucket.list_blobs(prefix=prefix))
+-    if not all_blobs:
+-        raise FileNotFoundError(
+-            f"No blobs found under gs://{_GCS_BUCKET}/{_GCS_TF_PREFIX}/"
+-        )
+-
+-    selected = {
+-        name: _pick_latest_blob(all_blobs, pattern)
+-        for name, pattern in _MODEL_FILE_PATTERNS.items()
+-    }
+-
+-    local_dir.mkdir(parents=True, exist_ok=True)
+-    for name, blob in selected.items():
+-        dest = local_dir / Path(blob.name).name
+-        logger.debug("  {} [{}] -> {}", blob.name, name, dest)
+-        blob.download_to_filename(str(dest))
+-
+-    logger.info("GCS tensorflow download complete.")
+-
+-
+-# ---------------------------------------------------------------------------
+-# Model directory resolution
+-# ---------------------------------------------------------------------------
+-def _resolve_tensorflow_dir() -> Path:
+-    from .gcs_cache import is_cache_valid_by_patterns
+-
+-    logger.info("Resolving tensorflow model directory...")
+-    if _GCS_BUCKET:
+-        gcs_dest = Path.cwd() / "models_tensorflow/gcp_download"
+-        if is_cache_valid_by_patterns(gcs_dest, list(_MODEL_FILE_PATTERNS.values())):
+-            return gcs_dest
+-        try:
+-            _download_from_gcs_tensorflow(gcs_dest)
+-            return gcs_dest
+-        except Exception as exc:
+-            logger.warning(
+-                "GCS tensorflow download failed ({}), falling back to local files.",
+-                exc,
+-            )
+-
+-    candidates: list[Path] = []
+-
+-    for env_var in ("MODEL_TF_PATH", "MODEL_PATH"):
+-        env_path = os.getenv(env_var)
+-        if env_path:
+-            p = Path(env_path)
+-            candidates.append(p.parent if p.is_file() else p)
+-
+-    here = Path(__file__).resolve()
+-    candidates.append(here.parents[2] / "models_tensorflow")
+-    candidates.append(Path.cwd() / "backend/app/models_tensorflow")
+-    candidates.append(Path.cwd() / "app/models_tensorflow")
+-
+-    for directory in candidates:
+-        if not directory.exists():
+-            continue
+-        try:
+-            _resolve_latest_artifacts(directory)
+-            logger.info("Using local tensorflow model files from {}", directory)
+-            return directory
+-        except FileNotFoundError:
+-            continue
+-
+-    raise FileNotFoundError(
+-        "Could not find a models_tensorflow directory with matching .keras, "
+-        "label encoder, and metadata files. Set MODEL_TF_PATH or "
+-        "place the files in backend/app/models_tensorflow/."
+-    )
+-
+-
+-def _load_metadata(metadata_path: Path) -> dict:
+-    with open(metadata_path, "rb") as f:
+-        metadata = pickle.load(f)
+-    if not isinstance(metadata, dict):
+-        raise TypeError(f"Expected dict metadata in {metadata_path}, got {type(metadata)}")
+-    return metadata
+-
+-
+-# ---------------------------------------------------------------------------
+-# Lazy singleton — loaded once on first use (or via load_model())
+-# ---------------------------------------------------------------------------
+-_le = None
+-_model = None
+-_input_size = (384, 384)
+-_ready = threading.Event()
+-
+-
+-def load_model() -> None:
+-    """Resolve model dir, download from GCS if needed, and load the keras model."""
+-    global _le, _model, _input_size
+-
+-    model_dir = _resolve_tensorflow_dir()
+-    artifacts = _resolve_latest_artifacts(model_dir)
+-    metadata = _load_metadata(artifacts["metadata"])
+-
+-    with open(artifacts["encoder"], "rb") as f:
+-        _le = pickle.load(f)
+-
+-    input_size = metadata.get("input_size", (384, 384))
+-    if len(input_size) != 2:
+-        raise ValueError(f"Unsupported input_size in metadata: {input_size}")
+-    _input_size = tuple(int(dim) for dim in input_size)
+-
+-    _model = tf.keras.models.load_model(artifacts["model"], compile=False)
+-
+-    _ready.set()
+-    logger.info(
+-        "TensorFlow model ready. device={} model={} classes={} weights={}",
+-        DEVICE,
+-        metadata.get("model_name", "unknown"),
+-        len(_le.classes_),
+-        artifacts["model"].name,
+-    )
+-
+-
+-def _ensure_loaded() -> None:
+-    _ready.wait()
+-
+-
+-# ---------------------------------------------------------------------------
+-# Helpers
+-# ---------------------------------------------------------------------------
+-def _load_array(img_path: str) -> np.ndarray:
+-    img = Image.open(img_path).convert("RGB")
+-    img = img.resize((_input_size[1], _input_size[0]))
+-    array = np.asarray(img, dtype=np.float32)
+-    return np.expand_dims(array, axis=0)
+-
+-
+-def _load_batch(img_paths: list[str]) -> np.ndarray:
+-    arrays = []
+-    for path in img_paths:
+-        img = Image.open(path).convert("RGB")
+-        img = img.resize((_input_size[1], _input_size[0]))
+-        arrays.append(np.asarray(img, dtype=np.float32))
+-    return np.stack(arrays, axis=0)
+-
+-
+-# ---------------------------------------------------------------------------
+-# Public API
+-# ---------------------------------------------------------------------------
+-def predict_top3(img_path: str) -> list[tuple[str, float]]:
+-    _ensure_loaded()
+-    proba = _model.predict(_load_array(img_path), verbose=0)[0]
+-    top3 = np.argsort(proba)[::-1][:3]
+-    return [(_le.classes_[i], round(float(proba[i]), 4)) for i in top3]
+-
+-
+-def predict_set(img_paths: list[str], batch_size: int = 32) -> list[tuple[str, float]]:
+-    _ensure_loaded()
+-    results = []
+-    for start in range(0, len(img_paths), batch_size):
+-        chunk = img_paths[start : start + batch_size]
+-        batch = _load_batch(chunk)
+-        proba = _model.predict(batch, verbose=0)
+-        for row in proba:
+-            best = int(np.argmax(row))
+-            results.append((_le.classes_[best], round(float(row[best]), 4)))
+-    return results
+diff --git a/backend/requirements.txt b/backend/requirements.txt
+index 809b18d..da150df 100644
+--- a/backend/requirements.txt
++++ b/backend/requirements.txt
+@@ -4,8 +4,9 @@ fastapi-cloud-cli==0.15.0
+ 
+ uvicorn==0.30.6
+ 
+-torch==2.2.2
+-torchvision==0.17.2
++--extra-index-url https://download.pytorch.org/whl/cpu
++torch==2.2.2+cpu
++torchvision==0.17.2+cpu
+ 
+ pillow==10.4.0
+ 
+@@ -17,4 +18,3 @@ google-cloud-storage==2.18.2
+ 
+ loguru==0.7.2
+ 
+-tensorflow==2.16.2
+diff --git a/docker/backend.Dockerfile b/docker/backend.Dockerfile
+index 1d40d82..a1fb13f 100644
+--- a/docker/backend.Dockerfile
++++ b/docker/backend.Dockerfile
+@@ -4,7 +4,8 @@ WORKDIR /plant_detect
+ 
+ RUN pip install --upgrade pip setuptools wheel
+ COPY backend/requirements.txt requirements.txt
+-RUN pip install -r requirements.txt
++RUN pip install --no-cache-dir -r requirements.txt
++
+ 
+ COPY backend/ backend/
+ 

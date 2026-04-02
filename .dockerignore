@@ -1,0 +1,12 @@
+data/
+models/
+models_illness/
+models_pytorch_large/
+models_sklearn/
+models_tensorflow/
+notebooks/
+.git/
+.env
+*.ipynb
+__pycache__/
+*.pyc
