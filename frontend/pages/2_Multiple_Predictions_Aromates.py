@@ -29,9 +29,9 @@ from utils import (
 
 st.set_page_config(page_title="Batch Predict", layout="wide")
 
-API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
+#API_URL = os.environ.get("API_URL", "https://plant-detect-backend-649164185154.europe-west1.run.app")
 #API_URL = "http://localhost:8080"
-#API_URL = "https://herb-predictor-966041648100.europe-west1.run.app"
+API_URL = "https://herb-predictor-966041648100.europe-west1.run.app"
 RETRY_DELAYS_SECONDS = (0.8, 1.6)
 
 GRID_COLS = 5
